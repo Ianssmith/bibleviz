@@ -16,11 +16,11 @@ d3.tsv("data/bookwordcount.tsv").then(function(data){
 var height = 1000;
 var width = 1800;
 var totalverses = 31102;
-var wordsearch = "Lord";
 
 
 //ECMAScript 2017 syntax
-async function analyze(wordsearch){
+//async function analyze(wordsearch){
+async function analyze(){
 	try{
 		const data = await d3.tsv("data/twebdata.tsv", function(d){
 			return {
@@ -61,22 +61,15 @@ async function analyze(wordsearch){
 		//console.log(wordlocs);
 
 		mbooksdata = []
+		cbooksdata = []
+		vbooksdata = []
 		for(var i=0;i<booksdata.length;i++){
 			mbooksdata.push(booksdata[i].bookwordcounts);
+			cbooksdata.push(booksdata[i].chaptercount);
+			//vbooksdata.push(booksdata[i].versecounts);
 			//console.log(booksdata[i].bookwordcounts);
 		}
 
-		cbooksdata = []
-		for(var i=0;i<booksdata.length;i++){
-			cbooksdata.push(booksdata[i].chaptercount);
-			//console.log(booksdata[i].chaptercount);
-		}
-
-		vbooksdata = []
-		for(var i=0;i<booksdata.length;i++){
-			vbooksdata.push(booksdata[i].versecounts);
-			//console.log(booksdata[i].chaptercount);
-		}
 
 		//console.log(data);
 		//console.log(booksdata);
@@ -101,19 +94,8 @@ async function analyze(wordsearch){
 		var ych_scale = d3.scaleLinear().domain([],[]).range([],[]);
 		var yverse_scale = d3.scaleLinear().domain([],[]).range([],[]);
 
+		var wordsearch = "Lord";
 
-		//wordsearch = document.getElementById('wordsearch').value;
-		d3.select("input#wordsearch").on("change", function(){
-			wordsearch = d3.event.target.value.replace(/[^\w\s]/gi,'');
-			d3.selectAll("circle").transition()
-				.attr('fill','darkslategray')
-				.attr('r',2);
-			//analyze(wordsearch);
-			render(wordsearch);
-		})
-
-		//console.log(D);
-function render(wordsearch){
 
 		d3.select("p#currentsearch").text("Highlighting verses containing the word: "+wordsearch);
 
@@ -131,6 +113,7 @@ function render(wordsearch){
 		G = svg.append('g')
 			.attr("id", "verses");
 
+
 		var div = d3.select("div#container").append("div")
 			.style("position","absolute")
 			.attr("class", "tooltip")
@@ -142,7 +125,9 @@ function render(wordsearch){
 			.append('rect')
 			//.attr('x', function(d,i){return (i*22)+(4*i);})
 			.attr('x', function(d,i){return (i*42)+20;})
-			//.attr('y', function(d){return height-d.bookwordcounts/45;})
+			.attr('y', height)
+			.transition()
+			.duration(1500)
 			.attr('y', function(d){return (height/2)-((d.bookwordcounts/45)/2);})
 			.attr('width',18)
 			//.attr('height', function(d){return d.bookwordcounts/45;})
@@ -150,41 +135,6 @@ function render(wordsearch){
 			.attr('height', function(d,i){return ((d.bookwordcounts/45));})
 			.attr("fill", "lightslategray");
 			//.attr("fill", "slategray");
-
-		//var booktitles = G.selectAll('text')
-
-		//d3.selectAll('text.booktitles')
-			//.attr('transform', 'rotate(45)');
-
-
-//console.log(booktitles);
-
-			//booktitles.attr('transform',"rotate(45)");
-			//.attr('y',function(d,i){
-				/*
-				var prevw = this.previousSibling.getBoundingClientRect();
-				console.log(prevw.bottom);
-				if(prevw.right - prevw.left >= 20){
-					if(prevw.bottom < 25 && prevw.bottom > 5){
-						return 20;
-					}else if(prevw.bottom > 27){
-						return 10;
-					}else{
-						return 30;
-					}
-				}else{
-					return 20;
-				}
-			})
-				*/
-			//.attr("transform",my_transform);
-			//.attr('class', 'titles')
-
-
-		//G.selectAll
-			//.text(function(d,i){return d.books;})
-			//.attr('x',function(d,i){return (i*22)+(5*i);})
-			//.attr('y',20);
 
 		bookgroups = G.selectAll('g')
 			//.data(D)
@@ -206,6 +156,9 @@ function render(wordsearch){
 				var bbox = this.getBBox().width;
 				return -1*(((height/2)-((d.bookwordcounts/45)/2))+(bbox/2));
 				})
+			.attr('y', height)
+			.transition()
+			.duration(1500)
 			.attr('y', function(d,i){return (i*42)+17;})
 			//.attr('x',function(d,i){return (i*27);})
 			//.attr('y', function(d){return (height/2)-((d.bookwordcounts/45)/2)-10;})
@@ -218,6 +171,7 @@ function render(wordsearch){
 		//var versetracker = 0;
 		var verslocs;
 		var versetracker = G.selectAll('g #books')
+		//d3.selectAll('g #books')
 			.data(data)
 			//.data(booksdata)
 			.enter()
@@ -284,57 +238,7 @@ function render(wordsearch){
 				}
 			}
 			*/
-function verseupdate(wordsearch){
-		var verslocs;
-		//var versetracker = G.selectAll('g #books')
-		G.selectAll('circle').transition()
-			//.data(data)
-			//.enter()
-			//.append('circle')
-			.attr('class',function(d,i){
-				for(var j=0;j<wordlocs.length;j++){
-					if(wordlocs[j].word == wordsearch){
-						verslocs = wordlocs[j].locations;
-						break;
-					}
-				}
-				if(verslocs.includes(d.id)){
-					return "selected";
-				}else{
-					return 'unselected'
-				}
-			})
-			.attr('cx',function(d,i){
-				return (((d.booknum-1)*42))+(d.verse/2)+20;
-			})
-			.attr('cy',function(d,i){ 
-				return (
-					(
-						(mbooksdata[d.booknum-1]/45)
-						-(((mbooksdata[d.booknum-1]/45)/cbooksdata[d.booknum-1])*d.chapter)
-					)
-					+(height/2)-((mbooksdata[d.booknum-1]/45)/2)
-				)
-			})
-			.attr('r',function(d,i){
-				if(this.getAttribute('class') == 'selected'){
-					return 4;
-				}else{
-					return 2;
-				}
-				
-			})
-			.attr('fill',function(d,i){
-				if(this.getAttribute('class') == 'selected'){
-					return "gold";
-				}else{
-					return 'darkslategray'
-				}
-			})
-			.attr('fill-opacity','0.9')
-			.attr('stroke','white')
-			.attr('stroke-width','0.1');
-}
+			function mice(){
 
 			G.selectAll("circle.unselected").on("mouseover", function(d){
 				d3.select(this).transition()
@@ -387,12 +291,41 @@ function verseupdate(wordsearch){
 					.style("opacity",0)
 
 			})
+			}
 
 
 		//var connections = G.selectAll('line')
 			//.data(data)
 			//.enter()
 			//.append('line')
+		d3.select("input#wordsearch").on("change", function(){
+			wordsearch = d3.event.target.value.replace(/[^\w\s]/gi,'');
+			G.selectAll("circle")
+			.attr('class',function(d,i){
+				for(var j=0;j<wordlocs.length;j++){
+					if(wordlocs[j].word == wordsearch){
+						verslocs = wordlocs[j].locations;
+						break;
+					}
+				}
+				if(verslocs.includes(d.id)){
+					return "selected";
+				}else{
+					return 'unselected'
+				}
+			})
+			G.selectAll("circle.selected").transition().duration(2000)
+				.attr('r',4)
+				.attr('fill',"gold");
+
+			G.selectAll("circle.unselected").transition().duration(2000)
+				.attr('r',2)
+				.attr('fill',"darkslategray");
+			d3.select("p#currentsearch").text("Highlighting verses containing the word: "+wordsearch);
+			//mice();
+			setTimeout(mice,2002);
+		})
+		mice();
 			
 
 		var transform = d3.zoomIdentity;
@@ -408,8 +341,8 @@ function verseupdate(wordsearch){
 			//books.attr("transform", d3.event.transform);
 			//versetracker.attr("transform", d3.event.transform);
 		}
-	}
-	render(wordsearch);
+	//}
+	//render(wordsearch);
 
 	}catch(error){
 		console.log("fail!");
@@ -417,5 +350,6 @@ function verseupdate(wordsearch){
 	}
 }
 
-analyze(wordsearch);
+//analyze(wordsearch);
+analyze();
 
