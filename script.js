@@ -24,10 +24,10 @@ async function analyze(){
 	try{
 		const data = await d3.tsv("data/twebdata.tsv", function(d){
 			return {
-				//words: JSON.parse(d.verses_nopunct.replace("\'","\"")),
+				////words: JSON.parse(d.verses_nopunct.replace("\'","\"")),
 				id: +d.id,
 				versetext: d.text,
-				words: JSON.parse(d.versearr.replace(/\'/g,"\"")),
+				//words: JSON.parse(d.versearr.replace(/\'/g,"\"")),
 				wordcount: +d.wordcount,
 				book: d['bookname'],
 				booknum: +d['booknum'],
@@ -60,6 +60,7 @@ async function analyze(){
 		});
 		//console.log(wordlocs);
 
+		/*
 		mbooksdata = []
 		cbooksdata = []
 		vbooksdata = []
@@ -69,6 +70,7 @@ async function analyze(){
 			//vbooksdata.push(booksdata[i].versecounts);
 			//console.log(booksdata[i].bookwordcounts);
 		}
+*/
 
 
 		//console.log(data);
@@ -198,10 +200,13 @@ async function analyze(){
 			.attr('cy',function(d,i){ 
 				return (
 					(
-						(mbooksdata[d.booknum-1]/45)
-						-(((mbooksdata[d.booknum-1]/45)/cbooksdata[d.booknum-1])*d.chapter)
+						//(mbooksdata[d.booknum-1]/45)
+						//-(((mbooksdata[d.booknum-1]/45)/cbooksdata[d.booknum-1])*d.chapter)
+						(booksdata[d.booknum-1].bookwordcounts/45)
+						-(((booksdata[d.booknum-1].bookwordcounts/45)/booksdata[d.booknum-1].chaptercount)*d.chapter)
 					)
-					+(height/2)-((mbooksdata[d.booknum-1]/45)/2)
+					//+(height/2)-((mbooksdata[d.booknum-1]/45)/2)
+					+(height/2)-((booksdata[d.booknum-1].bookwordcounts/45)/2)
 				)
 			})
 			.attr('r',function(d,i){
