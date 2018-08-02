@@ -101,6 +101,7 @@ async function analyze(wordsearch){
 		var ych_scale = d3.scaleLinear().domain([],[]).range([],[]);
 		var yverse_scale = d3.scaleLinear().domain([],[]).range([],[]);
 
+
 		//wordsearch = document.getElementById('wordsearch').value;
 		d3.select("input#wordsearch").on("change", function(){
 			wordsearch = d3.event.target.value.replace(/[^\w\s]/gi,'');
@@ -113,6 +114,8 @@ async function analyze(wordsearch){
 
 		//console.log(D);
 function render(wordsearch){
+
+		d3.select("p#currentsearch").text("Highlighting verses containing the word: "+wordsearch);
 
 		var svg = d3.select('div#container')
 			.classed("svg-container",true)
