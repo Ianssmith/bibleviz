@@ -1,3 +1,6 @@
+body{
+	background-color:darkslategray;
+}
 .svg-container {
 	display: inline-block;
 	position: relative;
@@ -12,8 +15,25 @@
 	position: absolute;
 	top: 0;
 	left: 0;
+	border:0.5px dashed white;
+}
+
+#searchbar{
+	width:50%;
+	margin: 0 auto;
+	text-align:center;
+	padding:5px;
 }
 
 #wordsearch, #currentsearch{
 	display:inline;
+	width:25%;
+	margin: 0 auto;
+	padding:5px;
+	font-size:20px;
+	color:white;
+}
+
+#wordsearch{
+	color:black;
 }

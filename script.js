@@ -58,7 +58,9 @@ async function analyze(){
 				locations: JSON.parse(d.wlocations.replace(/\'/g,"\""))
 			}
 		});
-		//console.log(wordlocs);
+		console.log(data);
+		console.log(booksdata);
+		console.log(wordlocs);
 
 		/*
 		mbooksdata = []
@@ -119,19 +121,39 @@ async function analyze(){
 		var div = d3.select("div#container").append("div")
 			.style("position","absolute")
 			.attr("class", "tooltip")
-			.style("opacity", "0");
+			.style("opacity", "0")
+			.style("width", "300px");
+
+		/*
+		var chsum = 0;
+		var chspacing = [chsum];
+		for(var j=0;j<booksdata.length;j++){
+			var maxch = Math.max.apply(null,booksdata[j].versecounts);
+			if(maxch>100){
+				chsum+=maxch/2
+			}
+			chspacing.push(maxch);
+			//chspacing.push(chsum);
+			//console.log(chspacing[j]);
+		}
+			*/
 		
-		books = G.selectAll('rect')
+		var books = G.selectAll('rect')
 			.data(booksdata)
 			.enter()
 			.append('rect')
+
 			//.attr('x', function(d,i){return (i*22)+(4*i);})
-			.attr('x', function(d,i){return (i*42)+20;})
+			//.attr('x', function(d,i){return (i*42)+20;})
+			.attr('x', function(d,i){return (i*100);})
+			//books.attr('x', function(d,i){ return (i*100)+chspacing[i]; })
 			.attr('y', height)
 			.transition()
 			.duration(1500)
 			.attr('y', function(d){return (height/2)-((d.bookwordcounts/45)/2);})
-			.attr('width',18)
+			//.attr('width',18)
+			.attr('width',70)
+			//.attr('width',100)
 			//.attr('height', function(d){return d.bookwordcounts/45;})
 			//.attr('height', height)
 			.attr('height', function(d,i){return ((d.bookwordcounts/45));})
@@ -154,21 +176,24 @@ async function analyze(){
 			//.append('p')
 			.text(function(d,i){return d.books;})
 			//.attr('transform',"rotate(45)")
+			/* for verticle words vvv
 			.attr('x',function(d){
 				var bbox = this.getBBox().width;
-				return -1*(((height/2)-((d.bookwordcounts/45)/2))+(bbox/2));
+				return -1*(((height/2)-((d.bookwordcounts/45)/2))+(bbox*3));
 				})
+			*/
 			.attr('y', height)
 			.transition()
 			.duration(1500)
-			.attr('y', function(d,i){return (i*42)+17;})
-			//.attr('x',function(d,i){return (i*27);})
-			//.attr('y', function(d){return (height/2)-((d.bookwordcounts/45)/2)-10;})
-			.attr('font-size',14)
+			//.attr('y', function(d,i){return (i*100)+40;}) //vertical words
+			//.attr('y', function(d,i){ return (i*100)-5+(chspacing[i]); })
+			.attr('x',function(d,i){return (i*100);})//horizontal words
+			.attr('y', function(d){return (height/2)-((d.bookwordcounts/45)/2)-3;})//horizontal words
+			.attr('font-size',11)
 			//.attr('fill','darkslategray')
 			.attr('fill','white')
 			.attr('class','booktitles')
-			.attr('transform',"rotate(-90)");
+			//.attr('transform',"rotate(-90)"); //vertical words
 
 		//var versetracker = 0;
 		var verslocs;
@@ -194,8 +219,13 @@ async function analyze(){
 			})
 
 			.attr('cx',function(d,i){
-				//return (((d.booknum-1)*22)+(4*(d.booknum-1))+1)+d.verse;
-				return (((d.booknum-1)*42))+(d.verse/2)+20;
+				//if(this.getAttribute('class') == 'selected'){
+					//return (((d.booknum-1)*100))+(d.verse)+2;
+				//}else{
+					//return (((d.booknum-1)*100))+(d.verse);
+				//}
+					return (((d.booknum-1)*100))+(d.verse*2);
+					//return (((d.booknum-1)*100))+(d.verse*3)+(chspacing[d.booknum-1]);
 			})
 			.attr('cy',function(d,i){ 
 				return (
@@ -207,14 +237,17 @@ async function analyze(){
 					)
 					//+(height/2)-((mbooksdata[d.booknum-1]/45)/2)
 					+(height/2)-((booksdata[d.booknum-1].bookwordcounts/45)/2)
-				)
+				)+5;
 			})
 			.attr('r',function(d,i){
 				//console.log(this.getAttribute('class'));
 				if(this.getAttribute('class') == 'selected'){
-					return 4;
+					return 5;
+					//return 3;
+					//return 2;
 				}else{
-					return 2;
+					return 4;
+					//return 1; 
 				}
 				
 			})
@@ -227,14 +260,48 @@ async function analyze(){
 				if(this.getAttribute('class') == 'selected'){
 					return "gold";
 				}else{
-					return 'darkslategray'
+					return 'silver'
+					//return 'dimgray'
+					//return 'darkslategray'
 				}
 			})
-			.attr('fill-opacity','0.9')
+			//.attr('fill-opacity','0.7')
+			.attr('fill-opacity',function(d,i){
+				if(this.getAttribute('class') == 'selected'){
+					return '0.9';
+				}else{
+					return '0.4';
+				}
+			})
 			//.attr('fill','gold');
 			//.attr('fill','darkslategray')
-			.attr('stroke','white')
-			.attr('stroke-width','0.1');
+			//.attr('stroke','ghostwhite')
+			.attr('stroke',function(d,i){
+				if(this.getAttribute('class') == 'selected'){
+					return 'white';
+				}else{
+					return 'whitesmoke';
+					//return 'dimgray';
+				}
+			})
+			/*
+			*/
+			//.attr('fill','gold');
+			.attr('stroke-opacity',function(d,i){
+				if(this.getAttribute('class') == 'selected'){
+					return '1.0';
+				}else{
+					return '0.7';
+				}
+			})
+			.attr('stroke-width',function(d,i){
+				//if(this.getAttribute('class') == 'selected'){
+					//return '0.3';
+				//}else{
+					return '0.1';
+				//}
+			})
+			//.attr('stroke-width','0.1');
 
 			/*
 			for(var v=0;v<data.length;v++){
@@ -247,7 +314,7 @@ async function analyze(){
 
 			G.selectAll("circle.unselected").on("mouseover", function(d){
 				d3.select(this).transition()
-					.attr("r",3)
+					.attr("r",5)
 			})
 
 			G.selectAll("circle.unselected").on("click", function(d){
@@ -259,13 +326,14 @@ async function analyze(){
 					.style("opacity", 0.9);
 				div.html(d.book + " " + d.chapter + ":" + d.verse + "<br>" + d.versetext)
 					.style("z-index", "10")
-					.style("left", (d3.event.pageX) +5+ "px")
+					//.style("left", (d3.event.pageX) +5+ "px")
+					.style("left", (d3.event.pageX) +-(this.getBoundingClientRect().width/2)+ "px")
 					.style("top", (d3.event.pageY) +5+ "px");
 			})
 
 			G.selectAll("circle.unselected").on("mouseout", function(d){
 				d3.select(this).transition()
-					.attr("r",2)
+					.attr("r",4)
 				div.transition()
 					.style("z-index", "-1")
 					.style("opacity",0)
@@ -275,6 +343,7 @@ async function analyze(){
 			G.selectAll("circle.selected").on("mouseover", function(d){
 				d3.select(this).transition()
 					.attr("r",7)
+					//.attr("r",5)
 				div.transition()
 					.style("background","#eeeeee")
 					.style("border-radius","3px")
@@ -283,14 +352,16 @@ async function analyze(){
 					.style("opacity", 0.9);
 				div.html(d.book + " " + d.chapter + ":" + d.verse + "<br>" + d.versetext)
 					.style("z-index", "10")
-					.style("left", (d3.event.pageX) +5+ "px")
+					//.style("left", (d3.event.pageX) +-(this.offsetWidth/4)+ "px")
+					.style("left", (d3.event.pageX) +-(this.getBoundingClientRect().width/2)+ "px")
 					.style("top", (d3.event.pageY) +5+ "px");
 
 			})
 			
 			G.selectAll("circle.selected").on("mouseout", function(d){
 				d3.select(this).transition()
-					.attr("r",4)
+					.attr("r",5)
+					//.attr("r",3)
 				div.transition()
 					.style("z-index", "-1")
 					.style("opacity",0)
@@ -319,13 +390,33 @@ async function analyze(){
 					return 'unselected'
 				}
 			})
+			//G.selectAll("circle.selected").transition()
+				//.attr('cx',function(d,i){ return (((d.booknum-1)*100))+(d.verse)+2; });
+
 			G.selectAll("circle.selected").transition().duration(2000)
-				.attr('r',4)
-				.attr('fill',"gold");
+				//.attr('r',4)
+				//.attr('r',3)
+				.attr('r',5)
+				.attr('fill',"gold")
+				.attr('fill-opacity',"0.9")
+				.attr('stroke',"white")
+				.attr('stroke-opacity',"1.0")
+				//.attr('stroke-width',"0.3");
+				.attr('stroke-width',"0.1");
+
+			//G.selectAll("circle.unselected").transition()
+				//.attr('cx',function(d,i){ return (((d.booknum-1)*100))+(d.verse); });
 
 			G.selectAll("circle.unselected").transition().duration(2000)
-				.attr('r',2)
-				.attr('fill',"darkslategray");
+				//.attr('r',2)
+				.attr('r',4)
+				//.attr('fill',"darkslategray");
+				.attr('fill',"silver")
+				.attr('fill-opacity',"0.4")
+				.attr('stroke',"whitesmoke")
+				.attr('stroke-opacity',"0.7")
+				.attr('stroke-width',"0.1");
+
 			d3.select("p#currentsearch").text("Highlighting verses containing the word: "+wordsearch);
 			//mice();
 			setTimeout(mice,2002);
@@ -333,12 +424,14 @@ async function analyze(){
 		mice();
 			
 
-		var transform = d3.zoomIdentity;
-		var zoom = d3.zoom();
+		var transform = d3.zoomIdentity.translate(15,height/3).scale(26/96);
+		var zoom = d3.zoom().on("zoom",zoomed);;
 		
+		svg.call(zoom.transform, transform);
+
 		svg.call(d3.zoom()
 			.on("zoom", zoomed)
-			.scaleExtent([1 / 2, 10]));
+			.scaleExtent([1 / 4, 10]));
 		
 		function zoomed() {
 			G.attr("transform", d3.event.transform);
