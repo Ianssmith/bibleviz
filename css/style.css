@@ -5,7 +5,8 @@ body{
 	display: inline-block;
 	position: relative;
 	width: 100%;
-	padding-bottom: 100%;
+	/*padding-bottom: 100%;*/
+	padding: 28%;
 	border: 100px;
 	vertical-align: top;
 	overflow: hidden;
@@ -18,11 +19,23 @@ body{
 	border:0.5px dashed white;
 }
 
+.booktitles{
+	font-family: 'Quicksand', sans-serif;
+}
+
+.tooltip{
+	font-family:'Dosis',sans-serif;
+	font-size:18px;
+}
+
 #searchbar{
 	width:50%;
 	margin: 0 auto;
 	text-align:center;
 	padding:5px;
+	font-family: 'Quicksand', sans-serif;
+	/*font-family:'Dosis',sans-serif;*/
+	/*font-family:'Work Sans', sans-serif;*/
 }
 
 #wordsearch, #currentsearch{
@@ -30,10 +43,19 @@ body{
 	width:25%;
 	margin: 0 auto;
 	padding:5px;
-	font-size:20px;
+	font-size:26px;
 	color:white;
 }
 
 #wordsearch{
 	color:black;
+	font-family: 'Quicksand', sans-serif;
+}
+
+#currentword{
+	font-size:28px;
+}
+
+#notfound{
+	font-size:14px;
 }
