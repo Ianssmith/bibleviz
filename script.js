@@ -98,15 +98,25 @@ async function analyze(){
 		var ych_scale = d3.scaleLinear().domain([],[]).range([],[]);
 		var yverse_scale = d3.scaleLinear().domain([],[]).range([],[]);
 
-		var wordsearch = "Love";
+		var wordsearch = ["Love","","","","","",""];
+		var searchcolors = ['gold','deepskyblue','lawngreen','darkmagenta','magenta','orangered','crimson']
+		var searchnum = 0;
 
 
 		d3.select("p#currentsearch")
 			.text("Highlighting verses containing the word: ")
 			.append('span')
-			.attr('id','currentword')
-			.text(wordsearch)
-			.style('color','gold');
+			.attr('id','currentword'+searchnum)
+			.attr('class','wordlist')
+			.text(wordsearch[searchnum])
+			//.style('color','gold');
+			.style('color',function(d,i){
+				//if(searchnum > searchcolors.length-1){
+					//searchnum = 0;
+				//}
+				return searchcolors[searchnum];
+			});
+
 
 		var svg = d3.select('div#container')
 			.classed("svg-container",true)
@@ -201,7 +211,8 @@ async function analyze(){
 			//.attr('transform',"rotate(-90)"); //vertical words
 
 		//var versetracker = 0;
-		var verslocs;
+		var verslocs = [0,0,0,0,0,0,0];
+		var wcounts = [0,0,0,0,0,0,0];
 		var versetracker = G.selectAll('g #books')
 		//d3.selectAll('g #books')
 			.data(data)
@@ -210,14 +221,17 @@ async function analyze(){
 			.append('circle')
 			//.attr('opacity',0.75)
 			.attr('class',function(d,i){
-				for(var j=0;j<wordlocs.length;j++){
-					if(wordlocs[j].word == wordsearch.toLowerCase()){
-						verslocs = wordlocs[j].locations;
-						break;
+					if(wordsearch[searchnum] != ""){
+					for(var j=0;j<wordlocs.length;j++){
+						if(wordlocs[j].word == wordsearch[searchnum].toLowerCase()){
+							verslocs[searchnum] = wordlocs[j].locations;
+							wcounts[searchnum] = wordlocs[j].locations.length;
+							break;
+						}
 					}
 				}
-				if(verslocs.includes(d.id)){
-					return "selected";
+				if(verslocs[searchnum].includes(d.id)){
+					return "selected"+searchnum;
 				}else{
 					return 'unselected'
 				}
@@ -246,7 +260,7 @@ async function analyze(){
 			})
 			.attr('r',function(d,i){
 				//console.log(this.getAttribute('class'));
-				if(this.getAttribute('class') == 'selected'){
+				if(this.getAttribute('class') == 'selected'+searchnum){
 					return 5;
 					//return 3;
 					//return 2;
@@ -262,17 +276,21 @@ async function analyze(){
 			//.attr('width',18)
 			//.attr('height',function(d,i){return (height-(((mbooksdata[d.booknum-1]/45)/cbooksdata[d.booknum-1])*d.chapter))+1})
 			.attr('fill',function(d,i){
-				if(this.getAttribute('class') == 'selected'){
-					return "gold";
+				if(this.getAttribute('class') == 'selected'+searchnum){
+					//return "gold";
+					//if(searchnum>searchcolors.length-1){
+						//searchnum=0;
+					//}
+					return searchcolors[searchnum];
 				}else{
-					return 'silver'
+					return 'silver';
 					//return 'dimgray'
 					//return 'darkslategray'
 				}
 			})
 			//.attr('fill-opacity','0.7')
 			.attr('fill-opacity',function(d,i){
-				if(this.getAttribute('class') == 'selected'){
+				if(this.getAttribute('class') == 'selected'+searchnum){
 					return '0.9';
 				}else{
 					return '0.4';
@@ -282,7 +300,7 @@ async function analyze(){
 			//.attr('fill','darkslategray')
 			//.attr('stroke','ghostwhite')
 			.attr('stroke',function(d,i){
-				if(this.getAttribute('class') == 'selected'){
+				if(this.getAttribute('class') == 'selected'+searchnum){
 					return 'white';
 				}else{
 					return 'whitesmoke';
@@ -293,7 +311,7 @@ async function analyze(){
 			*/
 			//.attr('fill','gold');
 			.attr('stroke-opacity',function(d,i){
-				if(this.getAttribute('class') == 'selected'){
+				if(this.getAttribute('class') == 'selected'+searchnum){
 					return '1.0';
 				}else{
 					return '0.7';
@@ -315,7 +333,9 @@ async function analyze(){
 				}
 			}
 			*/
-			function mice(){
+			function mice(snum){
+				console.log(searchnum);
+				console.log(searchcolors.length);
 
 			G.selectAll("circle.unselected").on("mouseover", function(d){
 				d3.select(this).transition()
@@ -333,7 +353,7 @@ async function analyze(){
 					.style("z-index", "10")
 					//.style("left", (d3.event.pageX) +5+ "px")
 					.style("left", (d3.event.pageX) +-(this.getBoundingClientRect().width/2)+ "px")
-					.style("top", (d3.event.pageY) +5+ "px");
+					.style("top", (d3.event.pageY) -15+ "px");
 			})
 
 			G.selectAll("circle.unselected").on("mouseout", function(d){
@@ -345,7 +365,7 @@ async function analyze(){
 			})
 
 
-			G.selectAll("circle.selected").on("mouseover", function(d){
+			G.selectAll("circle.selected"+snum).on("mouseover", function(d){
 				d3.select(this).transition()
 					.attr("r",7)
 					//.attr("r",5)
@@ -359,11 +379,11 @@ async function analyze(){
 					.style("z-index", "10")
 					//.style("left", (d3.event.pageX) +-(this.offsetWidth/4)+ "px")
 					.style("left", (d3.event.pageX) +-(this.getBoundingClientRect().width/2)+ "px")
-					.style("top", (d3.event.pageY) +5+ "px");
+					.style("top", (d3.event.pageY) -15+ "px");
 
 			})
 			
-			G.selectAll("circle.selected").on("mouseout", function(d){
+			G.selectAll("circle.selected"+snum).on("mouseout", function(d){
 				d3.select(this).transition()
 					.attr("r",5)
 					//.attr("r",3)
@@ -373,41 +393,81 @@ async function analyze(){
 
 			})
 			}
+		mice(searchnum);
+			//searchnum++;
 
 
 		//var connections = G.selectAll('line')
 			//.data(data)
 			//.enter()
 			//.append('line')
-		var found = false;
+
+	//function upv(sn){
+
+	d3.selectAll('wordlist').on("click",function(){
+
+
+	})
+
 		d3.select("input#wordsearch").on("change", function(){
-			wordsearch = d3.event.target.value.replace(/[^\w\s]/gi,'');
+
+			console.log(searchnum);
+			console.log(searchcolors.length)
+			//wordsearch = d3.event.target.value.replace(/[^\w\s]/gi,'');
+			if(searchnum>searchcolors.length-2){
+				searchnum = 0;
+			}else{
+				searchnum++;
+			}
+			wordsearch[searchnum] = d3.event.target.value.replace(/[^\w\s]/gi,'');
+				//wordsearch.append(d3.event.target.value.replace(/[^\w\s]/gi,''));
+			var found = false;
+			if(wordsearch[searchnum] != ""){
+
 			G.selectAll("circle")
 			.attr('class',function(d,i){
-				for(var j=0;j<wordlocs.length;j++){
-					if(wordlocs[j].word == wordsearch.toLowerCase()){
-						verslocs = wordlocs[j].locations;
-						found = true;
-						break;
+					//if(wordsearch[w] != ""){
+					for(var j=0;j<wordlocs.length;j++){
+						if(wordlocs[j].word == wordsearch[searchnum].toLowerCase()){
+							verslocs[searchnum] = wordlocs[j].locations;
+							wcounts[searchnum] = wordlocs[j].locations.length;
+							found = true;
+							break;
+						}
 					}
-				}
+				//}
 				if(found){
-					if(verslocs.includes(d.id)){
-						return "selected";
+					var dclass = this.getAttribute('class');
+					console.log(dclass);
+					if(verslocs[searchnum].includes(d.id)){
+						return "selected"+searchnum;
+					//}else if(this.getAttribute('class') == 'unselected'){
+					}else if(dclass == 'unselected'){
+						return 'unselected';
+					}else if(dclass == ("selected"+searchnum)){
+						return 'unselected';
 					}else{
-						return 'unselected'
+						return dclass;
 					}
 				}
 			})
 			//G.selectAll("circle.selected").transition()
 				//.attr('cx',function(d,i){ return (((d.booknum-1)*100))+(d.verse)+2; });
+				console.log(verslocs);
 
 		if(found){
-			G.selectAll("circle.selected").transition().duration(2000)
+			G.selectAll("circle.selected"+searchnum).transition().duration(2000)
 				//.attr('r',4)
 				//.attr('r',3)
 				.attr('r',5)
-				.attr('fill',"gold")
+				//.attr('fill',"gold")
+				.attr('fill',function(d,i){
+				//if(searchnum > searchcolors.length-1){
+					//searchnum = 0;
+				//}
+					//searchnum++;
+				return searchcolors[searchnum];
+			})
 				.attr('fill-opacity',"0.9")
 				.attr('stroke',"white")
 				.attr('stroke-opacity',"1.0")
@@ -429,23 +489,54 @@ async function analyze(){
 
 			//d3.select("p#currentsearch").text("Highlighting verses containing the word: "+wordsearch);
 			d3.select("p#currentsearch").text("Highlighting verses containing the word: ")
-				.append('span')
-				.attr('id','currentword')
-				.text(wordsearch)
-				.style('color','gold');
-			//mice();
+				.selectAll('div')
+				.data(wordsearch)
+				.enter()
+				.append('div')
+				.attr('id','currentword'+searchnum)
+				.attr('class','wordlist')
+				//.text(wordsearch[searchnum])
+				.text(function(d,i){ 
+					if(d!=""){
+						return d+' ('+wcounts[i]+'),';
+					}else{
+						return "";
+					}
+				})
+				.style('display','inline')
+				//.style('color','gold');
+				.style('color',function(d,i){
+					return searchcolors[i];
+				})
+
+			if(searchnum == searchcolors.length-1){
+			d3.select("p#currentsearch")
+				.append('div')
+				.style('color','white')
+				.style('font-size','14px')
+				.html(function(d,i){
+					if(searchnum == searchcolors.length-1){
+						//return "(This version can only search for "+searchcolors.length+" words at a time. The next search will replace the first word)";
+						return "...(This version can only search for "+searchcolors.length+" words at a time. The next search will replace the first word)";
+					}
+				})
+			}
 			found = false;
-			setTimeout(mice,2002);
+			setTimeout(function(){
+				mice(searchnum);
+			},2002);
+			//setTimeout(mice.bind(null,w),2002);
 		}else{
 			d3.select("p#currentsearch").html("This word was not found!<br>")
 				//.html('<br>')
 				.append('span')
 				.attr('id','notfound')
 				.text("(Word searches are case insensitive and exclude \"common words\" like \"the\" and \"and\".)");
+				searchnum--;
 		}
 
+			}
 		})
-		mice();
 			
 
 		var transform = d3.zoomIdentity.translate(15,height/3).scale(26/96);
