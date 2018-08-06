@@ -25,7 +25,7 @@ async function analyze(){
 		const data = await d3.tsv("data/twebdata.tsv", function(d){
 			return {
 				////words: JSON.parse(d.verses_nopunct.replace("\'","\"")),
-				id: +d.id,
+				id: d.id,
 				versetext: d.text,
 				//words: JSON.parse(d.versearr.replace(/\'/g,"\"")),
 				wordcount: +d.wordcount,
@@ -55,7 +55,8 @@ async function analyze(){
 				//locations: d['wlocations'],
 				//bookwordcounts: +d.wordcount,
 				//chaptercount: +d.chaptercount,
-				locations: JSON.parse(d.wlocations.replace(/\'/g,"\""))
+				locations: JSON.parse(d.wlocations.replace(/\'/g,"\"")),
+				bookcounts:JSON.parse(d.bookcounts.replace(/\'/g,"\""))
 			}
 		});
 		console.log(data);
@@ -148,7 +149,6 @@ async function analyze(){
 			//console.log(chspacing[j]);
 		}
 			*/
-		
 		var books = G.selectAll('rect')
 			.data(booksdata)
 			.enter()
@@ -162,6 +162,7 @@ async function analyze(){
 			.attr('width',70)
 			.attr('height', function(d,i){return ((d.bookwordcounts/45));})
 			.attr("fill", "lightslategray");
+		
 
 		bookgroups = G.selectAll('g')
 			//.data(D)
@@ -172,30 +173,11 @@ async function analyze(){
 			.append('g')
 			.attr('id','books');
 
-		var booktitles = G.selectAll('text')
-			.data(booksdata)
-			.enter()
-			.append('text')
-			.text(function(d,i){return d.books;})
-			/* for verticle words vvv
-			.attr('x',function(d){
-				var bbox = this.getBBox().width;
-				return -1*(((height/2)-((d.bookwordcounts/45)/2))+(bbox*3));
-				})
-			*/
-			.attr('y', height)
-			.transition()
-			.duration(1000)
-			//.attr('y', function(d,i){return (i*100)+40;}) //vertical words
-			.attr('x',function(d,i){return (i*100);})//horizontal words
-			.attr('y', function(d){return (height/2)-((d.bookwordcounts/45)/2)-3;})//horizontal words
-			.attr('font-size',"14px")
-			.attr('fill','white')
-			.attr('class','booktitles')
 			//.attr('transform',"rotate(-90)"); //vertical words
 
 		var verslocs = [0,0,0,0,0,0,0];
 		var wcounts = [0,0,0,0,0,0,0];
+		var bcounts = [];
 		var versetracker = G.selectAll('g #books')
 			.data(data)
 			.enter()
@@ -206,6 +188,7 @@ async function analyze(){
 						if(wordlocs[j].word == wordsearch[searchnum].toLowerCase()){
 							verslocs[searchnum] = wordlocs[j].locations;
 							wcounts[searchnum] = wordlocs[j].locations.length;
+							bcounts = wordlocs[j].bookcounts;
 							break;
 						}
 					}
@@ -280,6 +263,56 @@ async function analyze(){
 					return '0.1';
 				//}
 			})
+
+
+		var booktitles = G.selectAll('text')
+			.data(booksdata)
+			.enter()
+			.append('text')
+			.text(function(d,i){return d.books;})
+			/* for verticle words vvv
+			.attr('x',function(d){
+				var bbox = this.getBBox().width;
+				return -1*(((height/2)-((d.bookwordcounts/45)/2))+(bbox*3));
+				})
+			*/
+			.attr('y', height)
+			.transition()
+			.duration(1000)
+			//.attr('y', function(d,i){return (i*100)+40;}) //vertical words
+			.attr('x',function(d,i){return (i*100);})//horizontal words
+			.attr('y', function(d){return (height/2)-((d.bookwordcounts/45)/2)-3;})//horizontal words
+			.attr('font-size',"14px")
+			.attr('fill','white')
+			.attr('class','booktitles')
+
+	 var bwordcounts = G.selectAll('text.bookcounts')
+			.data(bcounts)
+			.enter()
+			.append('text')
+			//.insert('text')
+			.text(function(d,i){
+				//console.log(searchcolors[searchnum])
+				console.log(d)
+				//return bcounts[i];})
+				return d})
+			.attr('x',function(d,i){return (i*100);})//horizontal words
+			//.attr('y', function(d){return (height/2)-((d.bookwordcounts/45)/2)-3;})//horizontal words
+			.attr('y', function(d,i){return (height/2)-((booksdata[i].bookwordcounts/45)/2)-30;})//horizontal words
+			.style('font-size',"42")
+			.style('fill',searchcolors[searchnum])
+			//.attr('class','bookcounts');
+
+	
+			//G.selectAll('text')
+				//.append('text')
+				//.text(function(d,i){return bcounts[i]})
+				//.attr('x',function(d,i){return (i*100);})//horizontal words
+				//.attr('y', function(d){return (height/2)-((d.bookwordcounts/45)/2)-3;})//horizontal words
+				//.attr('font-size',"14px")
+				//.attr('fill',function(d,i){return searchcolors[i];})
+				//.attr('class','bwordcounts')
+
 
 			/*
 			for(var v=0;v<data.length;v++){
