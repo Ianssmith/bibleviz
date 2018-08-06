@@ -101,6 +101,7 @@ async function analyze(){
 		var wordsearch = ["Love","","","","","",""];
 		var searchcolors = ['gold','deepskyblue','lawngreen','darkmagenta','magenta','orangered','crimson']
 		var searchnum = 0;
+		console.log("selected"+0);
 
 
 		d3.select("p#currentsearch")
@@ -109,11 +110,7 @@ async function analyze(){
 			.attr('id','currentword'+searchnum)
 			.attr('class','wordlist')
 			.text(wordsearch[searchnum])
-			//.style('color','gold');
 			.style('color',function(d,i){
-				//if(searchnum > searchcolors.length-1){
-					//searchnum = 0;
-				//}
 				return searchcolors[searchnum];
 			});
 
@@ -123,7 +120,6 @@ async function analyze(){
 			.append('svg')
 			.attr("preserveAspectRatio", "xMinYMin meet")
 			.attr("viewBox", "0 0 "+width+" "+height)
-			//.attr("viewBox", "0 0 300 300")
 			.classed("svg-content", true)
 			.style('background','darkslategray')
 			//.attr('width',width)
@@ -158,22 +154,14 @@ async function analyze(){
 			.enter()
 			.append('rect')
 
-			//.attr('x', function(d,i){return (i*22)+(4*i);})
-			//.attr('x', function(d,i){return (i*42)+20;})
 			.attr('x', function(d,i){return (i*100);})
-			//books.attr('x', function(d,i){ return (i*100)+chspacing[i]; })
 			.attr('y', height)
 			.transition()
-			.duration(1500)
+			.duration(1000)
 			.attr('y', function(d){return (height/2)-((d.bookwordcounts/45)/2);})
-			//.attr('width',18)
 			.attr('width',70)
-			//.attr('width',100)
-			//.attr('height', function(d){return d.bookwordcounts/45;})
-			//.attr('height', height)
 			.attr('height', function(d,i){return ((d.bookwordcounts/45));})
 			.attr("fill", "lightslategray");
-			//.attr("fill", "slategray");
 
 		bookgroups = G.selectAll('g')
 			//.data(D)
@@ -188,9 +176,7 @@ async function analyze(){
 			.data(booksdata)
 			.enter()
 			.append('text')
-			//.append('p')
 			.text(function(d,i){return d.books;})
-			//.attr('transform',"rotate(45)")
 			/* for verticle words vvv
 			.attr('x',function(d){
 				var bbox = this.getBBox().width;
@@ -199,27 +185,21 @@ async function analyze(){
 			*/
 			.attr('y', height)
 			.transition()
-			.duration(1500)
+			.duration(1000)
 			//.attr('y', function(d,i){return (i*100)+40;}) //vertical words
-			//.attr('y', function(d,i){ return (i*100)-5+(chspacing[i]); })
 			.attr('x',function(d,i){return (i*100);})//horizontal words
 			.attr('y', function(d){return (height/2)-((d.bookwordcounts/45)/2)-3;})//horizontal words
 			.attr('font-size',"14px")
-			//.attr('fill','darkslategray')
 			.attr('fill','white')
 			.attr('class','booktitles')
 			//.attr('transform',"rotate(-90)"); //vertical words
 
-		//var versetracker = 0;
 		var verslocs = [0,0,0,0,0,0,0];
 		var wcounts = [0,0,0,0,0,0,0];
 		var versetracker = G.selectAll('g #books')
-		//d3.selectAll('g #books')
 			.data(data)
-			//.data(booksdata)
 			.enter()
 			.append('circle')
-			//.attr('opacity',0.75)
 			.attr('class',function(d,i){
 					if(wordsearch[searchnum] != ""){
 					for(var j=0;j<wordlocs.length;j++){
@@ -238,23 +218,14 @@ async function analyze(){
 			})
 
 			.attr('cx',function(d,i){
-				//if(this.getAttribute('class') == 'selected'){
-					//return (((d.booknum-1)*100))+(d.verse)+2;
-				//}else{
-					//return (((d.booknum-1)*100))+(d.verse);
-				//}
 					return (((d.booknum-1)*100))+(d.verse*2);
-					//return (((d.booknum-1)*100))+(d.verse*3)+(chspacing[d.booknum-1]);
 			})
 			.attr('cy',function(d,i){ 
 				return (
 					(
-						//(mbooksdata[d.booknum-1]/45)
-						//-(((mbooksdata[d.booknum-1]/45)/cbooksdata[d.booknum-1])*d.chapter)
 						(booksdata[d.booknum-1].bookwordcounts/45)
 						-(((booksdata[d.booknum-1].bookwordcounts/45)/booksdata[d.booknum-1].chaptercount)*d.chapter)
 					)
-					//+(height/2)-((mbooksdata[d.booknum-1]/45)/2)
 					+(height/2)-((booksdata[d.booknum-1].bookwordcounts/45)/2)
 				)+5;
 			})
@@ -262,11 +233,8 @@ async function analyze(){
 				//console.log(this.getAttribute('class'));
 				if(this.getAttribute('class') == 'selected'+searchnum){
 					return 5;
-					//return 3;
-					//return 2;
 				}else{
 					return 4;
-					//return 1; 
 				}
 				
 			})
@@ -277,18 +245,11 @@ async function analyze(){
 			//.attr('height',function(d,i){return (height-(((mbooksdata[d.booknum-1]/45)/cbooksdata[d.booknum-1])*d.chapter))+1})
 			.attr('fill',function(d,i){
 				if(this.getAttribute('class') == 'selected'+searchnum){
-					//return "gold";
-					//if(searchnum>searchcolors.length-1){
-						//searchnum=0;
-					//}
 					return searchcolors[searchnum];
 				}else{
 					return 'silver';
-					//return 'dimgray'
-					//return 'darkslategray'
 				}
 			})
-			//.attr('fill-opacity','0.7')
 			.attr('fill-opacity',function(d,i){
 				if(this.getAttribute('class') == 'selected'+searchnum){
 					return '0.9';
@@ -296,20 +257,15 @@ async function analyze(){
 					return '0.4';
 				}
 			})
-			//.attr('fill','gold');
-			//.attr('fill','darkslategray')
-			//.attr('stroke','ghostwhite')
 			.attr('stroke',function(d,i){
 				if(this.getAttribute('class') == 'selected'+searchnum){
 					return 'white';
 				}else{
 					return 'whitesmoke';
-					//return 'dimgray';
 				}
 			})
 			/*
 			*/
-			//.attr('fill','gold');
 			.attr('stroke-opacity',function(d,i){
 				if(this.getAttribute('class') == 'selected'+searchnum){
 					return '1.0';
@@ -324,7 +280,6 @@ async function analyze(){
 					return '0.1';
 				//}
 			})
-			//.attr('stroke-width','0.1');
 
 			/*
 			for(var v=0;v<data.length;v++){
@@ -333,9 +288,25 @@ async function analyze(){
 				}
 			}
 			*/
+		/*
+		var removeindex = searchnum;
+		//d3.select('p#currentsearch').selectAll('span.wordlist').on("click",function(d,i){
+		d3.selectAll('span.wordlist').on("click",function(d,i){
+			console.log("triggered")
+			removeindex = i
+			d3.select(this).remove()
+				//.attr('id',function(d,i){
+					//return "remove";
+				//})
+			wordsearch.splice(removeindex,1)
+			verslocs.splice(removeindex,1)
+			wordsearch.push("")
+			verslocs.push(0)
+		})
+		*/
 			function mice(snum){
-				console.log(searchnum);
-				console.log(searchcolors.length);
+				//console.log(searchnum);
+				//console.log(searchcolors.length);
 
 			G.selectAll("circle.unselected").on("mouseover", function(d){
 				d3.select(this).transition()
@@ -351,9 +322,8 @@ async function analyze(){
 					.style("opacity", 0.9);
 				div.html(d.book + " " + d.chapter + ":" + d.verse + "<br>" + d.versetext)
 					.style("z-index", "10")
-					//.style("left", (d3.event.pageX) +5+ "px")
 					.style("left", (d3.event.pageX) +-(this.getBoundingClientRect().width/2)+ "px")
-					.style("top", (d3.event.pageY) -15+ "px");
+					.style("top", (d3.event.pageY)-80+ "px");
 			})
 
 			G.selectAll("circle.unselected").on("mouseout", function(d){
@@ -368,7 +338,6 @@ async function analyze(){
 			G.selectAll("circle.selected"+snum).on("mouseover", function(d){
 				d3.select(this).transition()
 					.attr("r",7)
-					//.attr("r",5)
 				div.transition()
 					.style("background","#eeeeee")
 					.style("border-radius","3px")
@@ -377,16 +346,14 @@ async function analyze(){
 					.style("opacity", 0.9);
 				div.html(d.book + " " + d.chapter + ":" + d.verse + "<br>" + d.versetext)
 					.style("z-index", "10")
-					//.style("left", (d3.event.pageX) +-(this.offsetWidth/4)+ "px")
 					.style("left", (d3.event.pageX) +-(this.getBoundingClientRect().width/2)+ "px")
-					.style("top", (d3.event.pageY) -15+ "px");
+					.style("top", (d3.event.pageY)-80+ "px");
 
 			})
 			
 			G.selectAll("circle.selected"+snum).on("mouseout", function(d){
 				d3.select(this).transition()
 					.attr("r",5)
-					//.attr("r",3)
 				div.transition()
 					.style("z-index", "-1")
 					.style("opacity",0)
@@ -402,100 +369,74 @@ async function analyze(){
 			//.enter()
 			//.append('line')
 
-	//function upv(sn){
 
-	d3.selectAll('wordlist').on("click",function(){
+function render(elindex){
 
 
-	})
-
-		d3.select("input#wordsearch").on("change", function(){
-
-			console.log(searchnum);
-			console.log(searchcolors.length)
+			//console.log(searchnum);
+			//console.log(searchcolors.length)
 			//wordsearch = d3.event.target.value.replace(/[^\w\s]/gi,'');
-			if(searchnum>searchcolors.length-2){
-				searchnum = 0;
-			}else{
-				searchnum++;
-			}
-			wordsearch[searchnum] = d3.event.target.value.replace(/[^\w\s]/gi,'');
-				//wordsearch.append(d3.event.target.value.replace(/[^\w\s]/gi,''));
 			var found = false;
-			if(wordsearch[searchnum] != ""){
+			if(wordsearch[elindex] != ""){
 
 			G.selectAll("circle")
 			.attr('class',function(d,i){
-					//if(wordsearch[w] != ""){
+				if(elindex == searchnum){
 					for(var j=0;j<wordlocs.length;j++){
-						if(wordlocs[j].word == wordsearch[searchnum].toLowerCase()){
-							verslocs[searchnum] = wordlocs[j].locations;
-							wcounts[searchnum] = wordlocs[j].locations.length;
+						if(wordlocs[j].word == wordsearch[elindex].toLowerCase()){
+							verslocs[elindex] = wordlocs[j].locations;
+							wcounts[elindex] = wordlocs[j].locations.length;
 							found = true;
 							break;
 						}
 					}
-				//}
+				}else{
+					found = true;
+				}
 				if(found){
 					var dclass = this.getAttribute('class');
-					console.log(dclass);
-					if(verslocs[searchnum].includes(d.id)){
-						return "selected"+searchnum;
-					//}else if(this.getAttribute('class') == 'unselected'){
+					if(verslocs[elindex].includes(d.id)){
+						return "selected"+elindex;
 					}else if(dclass == 'unselected'){
 						return 'unselected';
-					}else if(dclass == ("selected"+searchnum)){
+					}else if(dclass == ("selected"+elindex)){
 						return 'unselected';
 					}else{
 						return dclass;
 					}
 				}
 			})
-			//G.selectAll("circle.selected").transition()
-				//.attr('cx',function(d,i){ return (((d.booknum-1)*100))+(d.verse)+2; });
 				console.log(verslocs);
 
 		if(found){
-			G.selectAll("circle.selected"+searchnum).transition().duration(2000)
-				//.attr('r',4)
-				//.attr('r',3)
+			G.selectAll("circle.selected"+elindex).transition().duration(1000)
 				.attr('r',5)
-				//.attr('fill',"gold")
 				.attr('fill',function(d,i){
-				//if(searchnum > searchcolors.length-1){
-					//searchnum = 0;
-				//}
-					//searchnum++;
-				return searchcolors[searchnum];
+				return searchcolors[elindex];
 			})
 				.attr('fill-opacity',"0.9")
 				.attr('stroke',"white")
 				.attr('stroke-opacity',"1.0")
-				//.attr('stroke-width',"0.3");
 				.attr('stroke-width',"0.1");
 
-			//G.selectAll("circle.unselected").transition()
-				//.attr('cx',function(d,i){ return (((d.booknum-1)*100))+(d.verse); });
 
-			G.selectAll("circle.unselected").transition().duration(2000)
-				//.attr('r',2)
+			G.selectAll("circle.unselected").transition().duration(1000)
 				.attr('r',4)
-				//.attr('fill',"darkslategray");
 				.attr('fill',"silver")
 				.attr('fill-opacity',"0.4")
 				.attr('stroke',"whitesmoke")
 				.attr('stroke-opacity',"0.7")
 				.attr('stroke-width',"0.1");
 
-			//d3.select("p#currentsearch").text("Highlighting verses containing the word: "+wordsearch);
 			d3.select("p#currentsearch").text("Highlighting verses containing the word: ")
-				.selectAll('div')
+				.selectAll('span')
 				.data(wordsearch)
 				.enter()
-				.append('div')
-				.attr('id','currentword'+searchnum)
+				.append('span')
+				.attr('id',function(d,i){
+					return 'currentword'+i;
+				})
 				.attr('class','wordlist')
-				//.text(wordsearch[searchnum])
 				.text(function(d,i){ 
 					if(d!=""){
 						return d+' ('+wcounts[i]+'),';
@@ -504,27 +445,36 @@ async function analyze(){
 					}
 				})
 				.style('display','inline')
-				//.style('color','gold');
 				.style('color',function(d,i){
 					return searchcolors[i];
 				})
+				.on("click",function(d,i){
+					console.log("triggered")
+					removeindex = i
+					d3.select(this).remove();
+					wordsearch.splice(removeindex,1);
+					verslocs.splice(removeindex,1);
+					wordsearch.push("");
+					verslocs.push(0);
+					searchnum--;
+					render(removeindex);
+				})
 
-			if(searchnum == searchcolors.length-1){
+			if(elindex == searchcolors.length-1){
 			d3.select("p#currentsearch")
 				.append('div')
 				.style('color','white')
 				.style('font-size','14px')
 				.html(function(d,i){
-					if(searchnum == searchcolors.length-1){
-						//return "(This version can only search for "+searchcolors.length+" words at a time. The next search will replace the first word)";
-						return "...(This version can only search for "+searchcolors.length+" words at a time. The next search will replace the first word)";
+					if(elindex == searchcolors.length-1){
+						return "(This version can only search for "+searchcolors.length+" words at a time. The next search will replace the first word)";
 					}
 				})
 			}
 			found = false;
 			setTimeout(function(){
-				mice(searchnum);
-			},2002);
+				mice(elindex);
+			},1002);
 			//setTimeout(mice.bind(null,w),2002);
 		}else{
 			d3.select("p#currentsearch").html("This word was not found!<br>")
@@ -536,7 +486,20 @@ async function analyze(){
 		}
 
 			}
-		})
+	if(elindex<searchnum)render(elindex+1);
+}
+
+	d3.select("input#wordsearch").on("change", function(){
+			if(searchnum>searchcolors.length-2){
+				searchnum = 0;
+			}else{
+				searchnum++;
+			}
+			wordsearch[searchnum] = d3.event.target.value.replace(/[^\w\s]/gi,'').trim();
+		render(searchnum);
+	})
+
+render(searchnum)
 			
 
 		var transform = d3.zoomIdentity.translate(15,height/3).scale(26/96);
