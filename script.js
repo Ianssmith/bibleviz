@@ -18,9 +18,15 @@ var width = 1800;
 var totalverses = 31102;
 
 
+function loaddots(){
+d3.select('#loading')
+	.append('text')
+	.text(' .')
+}
 //ECMAScript 2017 syntax
 //async function analyze(wordsearch){
 async function analyze(){
+	setInterval(loaddots,760);
 	try{
 		const data = await d3.tsv("data/twebdata.tsv", function(d){
 			return {
@@ -115,6 +121,8 @@ async function analyze(){
 				return searchcolors[searchnum];
 			});
 
+	d3.select('div#loading').remove();
+	clearInterval(loaddots);
 
 		var svg = d3.select('div#container')
 			.classed("svg-container",true)
@@ -409,8 +417,11 @@ function render(elindex){
 			//console.log(searchnum);
 			//console.log(searchcolors.length)
 			//wordsearch = d3.event.target.value.replace(/[^\w\s]/gi,'');
+			console.log(elindex+" is elindex")
+			console.log(searchnum+" is searchnum")
+
 			var found = false;
-			if(wordsearch[elindex] != ""){
+			if(wordsearch[elindex] != "" && wordsearch[elindex] != undefined){
 
 			G.selectAll("circle")
 			.attr('class',function(d,i){
@@ -423,9 +434,6 @@ function render(elindex){
 							break;
 						}
 					}
-				}else{
-					found = true;
-				}
 				if(found){
 					var dclass = this.getAttribute('class');
 					if(verslocs[elindex].includes(d.id)){
@@ -437,6 +445,9 @@ function render(elindex){
 					}else{
 						return dclass;
 					}
+				}
+				}else{
+					found = true;
 				}
 			})
 				console.log(verslocs);
@@ -482,15 +493,34 @@ function render(elindex){
 					return searchcolors[i];
 				})
 				.on("click",function(d,i){
-					console.log("triggered")
+					console.log("triggered at:"+i)
 					removeindex = i
 					d3.select(this).remove();
-					wordsearch.splice(removeindex,1);
-					verslocs.splice(removeindex,1);
+					d3.selectAll('circle.selected'+i)
+						.attr('r',4)
+						.attr('fill',"silver")
+						.attr('fill-opacity',"0.4")
+						.attr('stroke',"whitesmoke")
+						.attr('stroke-opacity',"0.7")
+						.attr('stroke-width',"0.1")
+						.attr('class','unselected');
+						
+					mice(removeindex)
+					wordsearch.splice(removeindex,1,"");
+					verslocs.splice(removeindex,1,0);
 					wordsearch.push("");
 					verslocs.push(0);
+					if(searchnum>=0){
+					if(searchnum>=removeindex){
 					searchnum--;
+					}
+					}
+					console.log(searchnum);
+					if(searchnum<0){
+						render(-1);
+					}else{
 					render(removeindex);
+					}
 				})
 
 			if(elindex == searchcolors.length-1){
@@ -519,6 +549,8 @@ function render(elindex){
 		}
 
 			}
+			console.log(elindex+"is elindex before ifloop")
+			console.log(searchnum+"is elindex before ifloop")
 	if(elindex<searchnum)render(elindex+1);
 }
 
@@ -528,6 +560,7 @@ function render(elindex){
 			}else{
 				searchnum++;
 			}
+			console.log(searchnum+" is searchnum @ field enter")
 			wordsearch[searchnum] = d3.event.target.value.replace(/[^\w\s]/gi,'').trim();
 		render(searchnum);
 	})
