@@ -301,6 +301,7 @@ async function analyze(){
 			.attr('fill','white')
 			.attr('class','booktitles')
 
+	 /*
 	 var bwordcounts = G.selectAll('text.bookcounts')
 			.data(bcounts[searchnum])
 			.enter()
@@ -317,8 +318,25 @@ async function analyze(){
 			.style('font-size',"42")
 			.style('fill',searchcolors[searchnum])
 			//.attr('class','bookcounts');
-	 /*
 			*/
+	//var bwordcounts = [0,0,0,0,0,0,0]
+	var bwordcounts = []
+	for(var k=0;k<bcounts.length;k++){
+		var cc = G.selectAll('text.bookcounts'+k)
+		//var cc = G.selectAll('text.bookcounts'+searchnum)
+			.data(bcounts[k])
+			.enter()
+			.append('text')
+			.text(function(d,i){
+				return d})
+			.attr('x',function(d,i){return (i*100);})//horizontal words
+			.attr('y', function(d,i){return (height/2)-((booksdata[i].bookwordcounts/45)/2)-30;})//horizontal words
+			.style('font-size',"42")
+			.style('fill',searchcolors[k])
+			.attr('class','bookcounts'+k);
+
+		bwordcounts.push(cc);
+	}
 
 	
 			//G.selectAll('text')
@@ -482,6 +500,29 @@ console.log("render called with: "+elindex+", "+wasfound+", "+removing)
 			 //bwordcounts.selectAll('text.bookcounts'+elindex)
 			 console.log(bcounts)
 			 console.log(elindex)
+
+			 //bwordcounts[elindex].selectAll('text.bookcounts'+elindex)
+			 G.selectAll('text.bookcounts'+elindex)
+				.text(function(d,i){return bcounts[elindex][i]})
+				.attr('y', function(d,i){return (height/2)-((booksdata[i].bookwordcounts/45)/2)-40*(elindex+1)});
+				//.remove();
+
+				//console.log(bwordcounts[elindex])
+
+/*
+			G.selectAll('text')
+				.data(bcounts[elindex])
+				.enter()
+				.append('text')
+				.text(function(d,i){
+					//console.log(d);
+					return bcounts[elindex][i]})
+				.attr('x',function(d,i){return (i*100);})//horizontal words
+				.attr('y', function(d,i){return (height/2)-((booksdata[i].bookwordcounts/45)/2)-40*(elindex+1)})
+				.style('font-size',"42")
+				.style('fill',searchcolors[searchnum])
+				.attr('class','bookcounts'+elindex);
+
 			 bwordcounts.selectAll('text.bookcounts'+elindex)
 				.data(bcounts[elindex]);
 				
@@ -506,8 +547,10 @@ console.log("render called with: "+elindex+", "+wasfound+", "+removing)
 				//.attr('class','bookcounts');
 
 				bwordcounts.exit().remove()
+*/
 
 			G.selectAll("circle.selected"+elindex)//.transition().duration(1000)
+				.transition().duration(1000)
 				.attr('r',5)
 				.attr('fill',function(d,i){
 				return searchcolors[elindex];
@@ -519,6 +562,7 @@ console.log("render called with: "+elindex+", "+wasfound+", "+removing)
 
 
 			G.selectAll("circle.unselected")//.transition().duration(1000)
+				.transition().duration(1000)
 				.attr('r',4)
 				.attr('fill',"silver")
 				.attr('fill-opacity',"0.4")
@@ -550,6 +594,9 @@ console.log("render called with: "+elindex+", "+wasfound+", "+removing)
 					console.log("triggered at:"+i)
 					removeindex = i
 					d3.select(this).remove();
+					d3.selectAll('text.bookcounts'+removeindex)
+						.text("");
+
 					d3.selectAll('circle.selected'+i)
 						.attr('r',4)
 						.attr('fill',"silver")
@@ -589,9 +636,9 @@ console.log("render called with: "+elindex+", "+wasfound+", "+removing)
 				})
 			}
 			//found = false;
-			//setTimeout(function(){
+			setTimeout(function(){
 				mice(elindex);
-			//},1002);
+			},1002);
 			//setTimeout(mice.bind(null,w),2002);
 		//}else{
 		//}
