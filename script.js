@@ -403,7 +403,8 @@ var bwordcounts = G.selectAll("text")
 				div.html(d.book + " " + d.chapter + ":" + d.verse + "<br>" + d.versetext)
 					.style("z-index", "10")
 					.style("left", (d3.event.pageX) +-(this.getBoundingClientRect().width/2)+ "px")
-					.style("top", (d3.event.pageY)-80+ "px");
+					//.style("top", (d3.event.pageY)+ "px");
+					.style("top", (d3.event.pageY-42)+ "px");
 			})
 
 			G.selectAll("circle.unselected").on("mouseout", function(d){
@@ -427,7 +428,8 @@ var bwordcounts = G.selectAll("text")
 				div.html(d.book + " " + d.chapter + ":" + d.verse + "<br>" + d.versetext)
 					.style("z-index", "10")
 					.style("left", (d3.event.pageX) +-(this.getBoundingClientRect().width/2)+ "px")
-					.style("top", (d3.event.pageY)-80+ "px");
+					//.style("top", (d3.event.pageY)+ "px");
+					.style("top", (d3.event.pageY-42)+ "px");
 
 			})
 			
