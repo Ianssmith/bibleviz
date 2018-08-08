@@ -65,9 +65,9 @@ async function analyze(){
 				bookcounts:JSON.parse(d.bookcounts.replace(/\'/g,"\""))
 			}
 		});
-		console.log(data);
-		console.log(booksdata);
-		console.log(wordlocs);
+		//console.log(data);
+		//console.log(booksdata);
+		//console.log(wordlocs);
 
 		/*
 		mbooksdata = []
@@ -108,7 +108,7 @@ async function analyze(){
 		var wordsearch = ["Love","","","","","",""];
 		var searchcolors = ['gold','deepskyblue','lawngreen','darkmagenta','magenta','orangered','crimson']
 		var searchnum = 0;
-		console.log("selected"+0);
+		//console.log("selected"+0);
 
 
 		d3.select("p#currentsearch")
@@ -164,8 +164,8 @@ async function analyze(){
 
 			.attr('x', function(d,i){return (i*100);})
 			.attr('y', height)
-			.transition()
-			.duration(1000)
+			//.transition()
+			//.duration(1000)
 			.attr('y', function(d){return (height/2)-((d.bookwordcounts/45)/2);})
 			.attr('width',70)
 			.attr('height', function(d,i){return ((d.bookwordcounts/45));})
@@ -185,7 +185,14 @@ async function analyze(){
 
 		var verslocs = [0,0,0,0,0,0,0];
 		var wcounts = [0,0,0,0,0,0,0];
-		var bcounts = [];
+		//var bcounts = [0,0,0,0,0,0,0];
+		var bc = booksdata.length;
+		var bcounts = [0]
+		for(var b=1;b<wcounts.length;b++){
+			bcounts.push(Array(bc).join(".").split("."));
+		}
+		//console.log(bcounts)
+
 		var versetracker = G.selectAll('g #books')
 			.data(data)
 			.enter()
@@ -196,7 +203,7 @@ async function analyze(){
 						if(wordlocs[j].word == wordsearch[searchnum].toLowerCase()){
 							verslocs[searchnum] = wordlocs[j].locations;
 							wcounts[searchnum] = wordlocs[j].locations.length;
-							bcounts = wordlocs[j].bookcounts;
+							bcounts[searchnum] = wordlocs[j].bookcounts;
 							break;
 						}
 					}
@@ -285,8 +292,8 @@ async function analyze(){
 				})
 			*/
 			.attr('y', height)
-			.transition()
-			.duration(1000)
+			//.transition()
+			//.duration(1000)
 			//.attr('y', function(d,i){return (i*100)+40;}) //vertical words
 			.attr('x',function(d,i){return (i*100);})//horizontal words
 			.attr('y', function(d){return (height/2)-((d.bookwordcounts/45)/2)-3;})//horizontal words
@@ -295,7 +302,7 @@ async function analyze(){
 			.attr('class','booktitles')
 
 	 var bwordcounts = G.selectAll('text.bookcounts')
-			.data(bcounts)
+			.data(bcounts[searchnum])
 			.enter()
 			.append('text')
 			//.insert('text')
@@ -310,6 +317,8 @@ async function analyze(){
 			.style('font-size',"42")
 			.style('fill',searchcolors[searchnum])
 			//.attr('class','bookcounts');
+	 /*
+			*/
 
 	
 			//G.selectAll('text')
@@ -345,6 +354,18 @@ async function analyze(){
 			verslocs.push(0)
 		})
 		*/
+/*
+for(var j=0;j<bcounts.length;j++){
+var bwordcounts = G.selectAll("text")
+	.data(bcounts[0])
+	.enter()
+	.append("text")
+	.text("")
+	.attr("class",function(d,i){return "bookcounts"+i});
+}
+*/
+
+
 			function mice(snum){
 				//console.log(searchnum);
 				//console.log(searchcolors.length);
@@ -410,31 +431,27 @@ async function analyze(){
 			//.enter()
 			//.append('line')
 
+var nfound = 0;
 
-function render(elindex){
+function render(elindex,wasfound, removing){
 
 
+console.log("render called with: "+elindex+", "+wasfound+", "+removing)
 			//console.log(searchnum);
 			//console.log(searchcolors.length)
 			//wordsearch = d3.event.target.value.replace(/[^\w\s]/gi,'');
-			console.log(elindex+" is elindex")
-			console.log(searchnum+" is searchnum")
+			////console.log(elindex+" is elindex")
+			//console.log(searchnum+" is searchnum")
 
-			var found = false;
-			if(wordsearch[elindex] != "" && wordsearch[elindex] != undefined){
+			//var found = false;
+			console.log(wordsearch[elindex])
+			if(wordsearch[elindex] == "" || wordsearch[elindex] == undefined)
+				return 0;
 
+		if(wasfound && !removing){
 			G.selectAll("circle")
-			.attr('class',function(d,i){
-				if(elindex == searchnum){
-					for(var j=0;j<wordlocs.length;j++){
-						if(wordlocs[j].word == wordsearch[elindex].toLowerCase()){
-							verslocs[elindex] = wordlocs[j].locations;
-							wcounts[elindex] = wordlocs[j].locations.length;
-							found = true;
-							break;
-						}
-					}
-				if(found){
+				.attr('class',function(d,i){
+				//if(elindex == searchnum){
 					var dclass = this.getAttribute('class');
 					if(verslocs[elindex].includes(d.id)){
 						return "selected"+elindex;
@@ -445,15 +462,52 @@ function render(elindex){
 					}else{
 						return dclass;
 					}
-				}
-				}else{
-					found = true;
-				}
+				//}
 			})
-				console.log(verslocs);
+				//console.log(verslocs);
+		}else{
+			d3.select("p#currentsearch").html("This word was not found!<br>")
+				//.html('<br>')
+				.append('span')
+				.attr('id','notfound')
+				.text("(Word searches are case insensitive and exclude \"common words\" like \"the\" and \"and\".)");
+				searchnum--;
+				return -1;
+		}
 
-		if(found){
-			G.selectAll("circle.selected"+elindex).transition().duration(1000)
+
+		if(wasfound){
+			 //G.selectAll('text.bookcounts')
+			 //bwordcounts = G.selectAll('text.bookcounts'+elindex)
+			 //bwordcounts.selectAll('text.bookcounts'+elindex)
+			 console.log(bcounts)
+			 console.log(elindex)
+			 bwordcounts.selectAll('text.bookcounts'+elindex)
+				.data(bcounts[elindex]);
+				
+				bwordcounts.attr("class",'update');
+				
+				bwordcounts.enter()
+				.append('text')
+				//.insert('text')
+				.merge(bwordcounts)
+				.text(function(d,i){
+					//console.log(searchcolors[searchnum])
+					//console.log(i)
+					//return bcounts[i];})
+					//return bcounts[i]})
+					return bcounts[elindex][i]})
+				.attr('x',function(d,i){return (i*100);})//horizontal words
+				//.attr('y', function(d){return (height/2)-((d.bookwordcounts/45)/2)-3;})//horizontal words
+				//.attr('y', function(d,i){return (height/2)-((booksdata[i].bookwordcounts/45)/2)-(40*(elindex+1));})//horizontal words
+				.attr('y', function(d,i){return (height/2)-((booksdata[i].bookwordcounts/45)/2)-40*(elindex+1)})
+				.style('font-size',"42")
+				.style('fill',searchcolors[searchnum])
+				//.attr('class','bookcounts');
+
+				bwordcounts.exit().remove()
+
+			G.selectAll("circle.selected"+elindex)//.transition().duration(1000)
 				.attr('r',5)
 				.attr('fill',function(d,i){
 				return searchcolors[elindex];
@@ -464,7 +518,7 @@ function render(elindex){
 				.attr('stroke-width',"0.1");
 
 
-			G.selectAll("circle.unselected").transition().duration(1000)
+			G.selectAll("circle.unselected")//.transition().duration(1000)
 				.attr('r',4)
 				.attr('fill',"silver")
 				.attr('fill-opacity',"0.4")
@@ -508,8 +562,8 @@ function render(elindex){
 					mice(removeindex)
 					wordsearch.splice(removeindex,1,"");
 					verslocs.splice(removeindex,1,0);
-					wordsearch.push("");
-					verslocs.push(0);
+					//wordsearch.push("");
+					//verslocs.push(0);
 					if(searchnum>=0){
 					if(searchnum>=removeindex){
 					searchnum--;
@@ -517,9 +571,9 @@ function render(elindex){
 					}
 					console.log(searchnum);
 					if(searchnum<0){
-						render(-1);
+						render(-1,false,true);
 					}else{
-					render(removeindex);
+					render(removeindex,true,true);
 					}
 				})
 
@@ -534,38 +588,45 @@ function render(elindex){
 					}
 				})
 			}
-			found = false;
-			setTimeout(function(){
+			//found = false;
+			//setTimeout(function(){
 				mice(elindex);
-			},1002);
+			//},1002);
 			//setTimeout(mice.bind(null,w),2002);
-		}else{
-			d3.select("p#currentsearch").html("This word was not found!<br>")
-				//.html('<br>')
-				.append('span')
-				.attr('id','notfound')
-				.text("(Word searches are case insensitive and exclude \"common words\" like \"the\" and \"and\".)");
-				searchnum--;
-		}
+		//}else{
+		//}
 
 			}
-			console.log(elindex+"is elindex before ifloop")
-			console.log(searchnum+"is elindex before ifloop")
-	if(elindex<searchnum)render(elindex+1);
+			////console.log(elindex+"is elindex before ifloop")
+			//console.log(searchnum+"is elindex before ifloop")
+	if(elindex<searchnum)render(elindex+1,true,true);
 }
 
 	d3.select("input#wordsearch").on("change", function(){
+		console.log("was word found? "+nfound);
 			if(searchnum>searchcolors.length-2){
 				searchnum = 0;
 			}else{
+			//}else if(nfound != -1){
+				//console.log("notfound hit")
 				searchnum++;
 			}
 			console.log(searchnum+" is searchnum @ field enter")
 			wordsearch[searchnum] = d3.event.target.value.replace(/[^\w\s]/gi,'').trim();
-		render(searchnum);
+					var found = false;
+					for(var j=0;j<wordlocs.length;j++){
+						if(wordlocs[j].word == wordsearch[searchnum].toLowerCase()){
+							verslocs[searchnum] = wordlocs[j].locations;
+							wcounts[searchnum] = wordlocs[j].locations.length;
+							bcounts[searchnum] = wordlocs[j].bookcounts;
+							found = true;
+							break;
+						}
+					}
+		nfound = render(searchnum,found,false);
 	})
 
-render(searchnum)
+nfound = render(searchnum,true,false)
 			
 
 		var transform = d3.zoomIdentity.translate(15,height/3).scale(26/96);
