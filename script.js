@@ -22,11 +22,19 @@ function loaddots(){
 d3.select('#loading')
 	.append('text')
 	.text(' .')
+
 }
+
+function loopload(){
+	d3.select('#loading')
+		.text('Loading')
+}
+
 //ECMAScript 2017 syntax
 //async function analyze(wordsearch){
 async function analyze(){
 	setInterval(loaddots,760);
+	setInterval(loopload,760*5.5);
 	try{
 		const data = await d3.tsv("data/twebdata.tsv", function(d){
 		//const data = await d3.tsv("data/kjvdata.tsv", function(d){
@@ -126,6 +134,7 @@ async function analyze(){
 
 	d3.select('div#loading').remove();
 	clearInterval(loaddots);
+	clearInterval(loopload);
 
 		var svg = d3.select('div#container')
 			.classed("svg-container",true)
