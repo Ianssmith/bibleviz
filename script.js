@@ -29,6 +29,7 @@ async function analyze(){
 	setInterval(loaddots,760);
 	try{
 		const data = await d3.tsv("data/twebdata.tsv", function(d){
+		//const data = await d3.tsv("data/kjvdata.tsv", function(d){
 			return {
 				////words: JSON.parse(d.verses_nopunct.replace("\'","\"")),
 				id: d.id,
@@ -45,6 +46,7 @@ async function analyze(){
 			
 		});
 		const booksdata = await d3.tsv("data/bookwordcount.tsv", function(d){
+		//const booksdata = await d3.tsv("data/bookwordcount_kjv.tsv", function(d){
 			return {
 				books: d['bookname'],
 				bookwordcounts: +d.wordcount,
@@ -55,6 +57,7 @@ async function analyze(){
 			}
 		});
 		const wordlocs = await d3.tsv("data/wordlocs.tsv", function(d){
+		//const wordlocs = await d3.tsv("data/wordlocs_kjv.tsv", function(d){
 			return {
 				//books: d['field.1_y'],
 				word: d['uwords'],
@@ -219,13 +222,16 @@ async function analyze(){
 					return (((d.booknum-1)*100))+(d.verse*2);
 			})
 			.attr('cy',function(d,i){ 
+				/*
+				(wordcount-((wordcount/chaptercount)*currentchapter))+midpoint-(wordcount/2)-wordcount
+				*/
 				return (
-					(
+					((
 						(booksdata[d.booknum-1].bookwordcounts/45)
-						-(((booksdata[d.booknum-1].bookwordcounts/45)/booksdata[d.booknum-1].chaptercount)*d.chapter)
+						+(((booksdata[d.booknum-1].bookwordcounts/45)/booksdata[d.booknum-1].chaptercount)*d.chapter)
 					)
-					+(height/2)-((booksdata[d.booknum-1].bookwordcounts/45)/2)
-				)+5;
+					+(height/2)-((booksdata[d.booknum-1].bookwordcounts/45)/2))-booksdata[d.booknum-1].bookwordcounts/45
+				)-5;
 			})
 			.attr('r',function(d,i){
 				//console.log(this.getAttribute('class'));
