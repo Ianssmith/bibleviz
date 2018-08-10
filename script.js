@@ -18,8 +18,8 @@ var width = 1800;
 var totalverses = 31102;
 //var versions = ["King James","World English Bible","Young's Literal Translation","Webster's Bible","Darby English Bible","Bible in Basic English","American Standard-ASV1901"]
 //var versionfilename = ["kjv","web","Young's Literal Translation","Webster's Bible","Darby English Bible","Bible in Basic English","American Standard-ASV1901"]
-var versionfilename = ["web","kjv"];
-var versions = ["World English Bible","King James"];
+var versionfilename = ["web","kjv","ylt"];
+var versions = ["World English Bible","King James","Young's Literal Translation"];
 var currentversion = 0;
 
 
@@ -77,7 +77,6 @@ async function analyze(vindex){
 		//const wordlocs = await d3.json("data/upwordlocs_kjv.json", function(d){
 		//const wordlocs = await d3.tsv("data/wordlocs.tsv", function(d){
 		//const wordlocs = await d3.tsv("data/wordlocs_kjv.tsv", function(d){
-			console.log(d);
 			return {
 				word: d['uwords'],
 				locations: JSON.parse(d.wlocations.replace(/\'/g,"\"")),
@@ -86,7 +85,7 @@ async function analyze(vindex){
 		});
 		//console.log(data);
 		//console.log(booksdata);
-		console.log(wordlocs);
+		//console.log(wordlocs);
 
 		/*
 		mbooksdata = []
@@ -139,7 +138,6 @@ var dropd_Major = d3.select("#dropdown-major select")
 	.append("option")
 	.text(function(d){return d})
 	.attr("value", function (d,i) { 
-		console.log(d);
 		return i})
 
 
@@ -462,10 +460,43 @@ var bwordcounts = G.selectAll("text")
 }
 */
 
+var clip = "";
+// Overwrite what is being copied to the clipboard.
+document.addEventListener('copy', function(e) {
+  // e.clipboardData is initially empty, but we can set it to the
+  // data that we want copied onto the clipboard.
+  e.clipboardData.setData('text/plain', clip);
+  //e.clipboardData.setData('text/html', '<b>Hello, world!</b>');
 
-			function mice(snum){
-				//console.log(searchnum);
-				//console.log(searchcolors.length);
+  // This is necessary to prevent the current document selection from
+  // being written to the clipboard.
+  e.preventDefault();
+});
+
+
+	function mice(snum){
+		document.addEventListener('keydown',function(event){
+			clip = ""
+			if(event.key == 'c'){
+				if(event.ctrlKey){
+					for(var k=0;k<wordsearch.length;k++){
+						if(wordsearch[k] != ""){
+							clip+="_"+wordsearch[k]+"\n";
+							d3.selectAll('circle.selected'+k).data().forEach(function(el){
+								clip+= el.book+" "+el.chapter+":"+el.verse+" "+el.versetext;
+								clip+='\n'
+							})
+						}
+						clip+='\n'
+					}
+						
+				}else{
+					clip = div._groups[0][0].innerText;
+					document.execCommand('copy');
+				}
+			}
+			//console.log(event)
+		})
 
 			G.selectAll("circle.unselected").on("mouseover", function(d){
 				d3.select(this).transition()
@@ -484,6 +515,11 @@ var bwordcounts = G.selectAll("text")
 					.style("left", (d3.event.pageX) +-(this.getBoundingClientRect().width/2)+ "px")
 					//.style("top", (d3.event.pageY)+ "px");
 					.style("top", (d3.event.pageY-42)+ "px");
+
+					//document.querySelector('div.container div.tooltip').focus();
+					//document.querySelector('div.container div.tooltip').select();
+					//d3.select('div.container div.tooltip').focus();
+					//d3.select('div.container div.tooltip').select();
 			})
 
 			G.selectAll("circle.unselected").on("mouseout", function(d){
@@ -510,6 +546,9 @@ var bwordcounts = G.selectAll("text")
 					//.style("top", (d3.event.pageY)+ "px");
 					.style("top", (d3.event.pageY-42)+ "px");
 
+					//document.querySelector('div.container div.tooltip').focus();
+					//document.querySelector('div.container div.tooltip').select();
+
 			})
 			
 			G.selectAll("circle.selected"+snum).on("mouseout", function(d){
@@ -535,7 +574,7 @@ var nfound = 0;
 function render(elindex,wasfound, removing){
 
 
-console.log("render called with: "+elindex+", "+wasfound+", "+removing)
+//console.log("render called with: "+elindex+", "+wasfound+", "+removing)
 			//console.log(searchnum);
 			//console.log(searchcolors.length)
 			//wordsearch = d3.event.target.value.replace(/[^\w\s]/gi,'');
@@ -543,7 +582,7 @@ console.log("render called with: "+elindex+", "+wasfound+", "+removing)
 			//console.log(searchnum+" is searchnum")
 
 			//var found = false;
-			console.log(wordsearch[elindex])
+			//console.log(wordsearch[elindex])
 			if(wordsearch[elindex] == "" || wordsearch[elindex] == undefined)
 				return 0;
 
@@ -579,8 +618,8 @@ console.log("render called with: "+elindex+", "+wasfound+", "+removing)
 			 //G.selectAll('text.bookcounts')
 			 //bwordcounts = G.selectAll('text.bookcounts'+elindex)
 			 //bwordcounts.selectAll('text.bookcounts'+elindex)
-			 console.log(bcounts)
-			 console.log(elindex)
+			 //console.log(bcounts)
+			 //console.log(elindex)
 
 			 //bwordcounts[elindex].selectAll('text.bookcounts'+elindex)
 			 G.selectAll('text.bookcounts'+elindex)
@@ -590,45 +629,6 @@ console.log("render called with: "+elindex+", "+wasfound+", "+removing)
 
 				//console.log(bwordcounts[elindex])
 
-/*
-			G.selectAll('text')
-				.data(bcounts[elindex])
-				.enter()
-				.append('text')
-				.text(function(d,i){
-					//console.log(d);
-					return bcounts[elindex][i]})
-				.attr('x',function(d,i){return (i*100);})//horizontal words
-				.attr('y', function(d,i){return (height/2)-((booksdata[i].bookwordcounts/45)/2)-40*(elindex+1)})
-				.style('font-size',"42")
-				.style('fill',searchcolors[searchnum])
-				.attr('class','bookcounts'+elindex);
-
-			 bwordcounts.selectAll('text.bookcounts'+elindex)
-				.data(bcounts[elindex]);
-				
-				bwordcounts.attr("class",'update');
-				
-				bwordcounts.enter()
-				.append('text')
-				//.insert('text')
-				.merge(bwordcounts)
-				.text(function(d,i){
-					//console.log(searchcolors[searchnum])
-					//console.log(i)
-					//return bcounts[i];})
-					//return bcounts[i]})
-					return bcounts[elindex][i]})
-				.attr('x',function(d,i){return (i*100);})//horizontal words
-				//.attr('y', function(d){return (height/2)-((d.bookwordcounts/45)/2)-3;})//horizontal words
-				//.attr('y', function(d,i){return (height/2)-((booksdata[i].bookwordcounts/45)/2)-(40*(elindex+1));})//horizontal words
-				.attr('y', function(d,i){return (height/2)-((booksdata[i].bookwordcounts/45)/2)-40*(elindex+1)})
-				.style('font-size',"42")
-				.style('fill',searchcolors[searchnum])
-				//.attr('class','bookcounts');
-
-				bwordcounts.exit().remove()
-*/
 
 			G.selectAll("circle.selected"+elindex)//.transition().duration(1000)
 				.transition().duration(1000)
@@ -672,7 +672,7 @@ console.log("render called with: "+elindex+", "+wasfound+", "+removing)
 					return searchcolors[i];
 				})
 				.on("click",function(d,i){
-					console.log("triggered at:"+i)
+					//console.log("triggered at:"+i)
 					removeindex = i
 					d3.select(this).remove();
 					d3.selectAll('text.bookcounts'+removeindex)
@@ -693,15 +693,15 @@ console.log("render called with: "+elindex+", "+wasfound+", "+removing)
 					//wordsearch.push("");
 					//verslocs.push(0);
 					if(searchnum>=0){
-					if(searchnum>=removeindex){
-					searchnum--;
+						if(searchnum>=removeindex){
+							searchnum--;
+						}
 					}
-					}
-					console.log(searchnum);
+					//console.log(searchnum);
 					if(searchnum<0){
 						render(-1,false,true);
 					}else{
-					render(removeindex,true,true);
+						render(removeindex,true,true);
 					}
 				})
 
@@ -731,7 +731,7 @@ console.log("render called with: "+elindex+", "+wasfound+", "+removing)
 }
 
 	d3.select("input#wordsearch").on("change", function(){
-		console.log("was word found? "+nfound);
+		//console.log("was word found? "+nfound);
 			if(searchnum>searchcolors.length-2){
 				searchnum = 0;
 			}else{
@@ -739,7 +739,7 @@ console.log("render called with: "+elindex+", "+wasfound+", "+removing)
 				//console.log("notfound hit")
 				searchnum++;
 			}
-			console.log(searchnum+" is searchnum @ field enter")
+			//console.log(searchnum+" is searchnum @ field enter")
 			wordsearch[searchnum] = d3.event.target.value.replace(/[^\w\s]/gi,'').trim();
 					var found = false;
 					//for(var j=0;j<wordlocs.length;j++){
