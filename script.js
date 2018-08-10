@@ -16,6 +16,11 @@ d3.tsv("data/bookwordcount.tsv").then(function(data){
 var height = 1000;
 var width = 1800;
 var totalverses = 31102;
+//var versions = ["King James","World English Bible","Young's Literal Translation","Webster's Bible","Darby English Bible","Bible in Basic English","American Standard-ASV1901"]
+//var versionfilename = ["kjv","web","Young's Literal Translation","Webster's Bible","Darby English Bible","Bible in Basic English","American Standard-ASV1901"]
+var versionfilename = ["web","kjv"];
+var versions = ["World English Bible","King James"];
+var currentversion = 0;
 
 
 function loaddots(){
@@ -30,13 +35,15 @@ function loopload(){
 		.text('Loading')
 }
 
+
 //ECMAScript 2017 syntax
 //async function analyze(wordsearch){
-async function analyze(){
+async function analyze(vindex){
 	setInterval(loaddots,760);
 	setInterval(loopload,760*5.5);
 	try{
-		const data = await d3.tsv("data/twebdata.tsv", function(d){
+		const data = await d3.tsv("data/"+versionfilename[vindex]+"data.tsv", function(d){
+		//const data = await d3.tsv("data/twebdata.tsv", function(d){
 		//const data = await d3.tsv("data/kjvdata.tsv", function(d){
 			return {
 				////words: JSON.parse(d.verses_nopunct.replace("\'","\"")),
@@ -53,7 +60,8 @@ async function analyze(){
 			}
 			
 		});
-		const booksdata = await d3.tsv("data/bookwordcount.tsv", function(d){
+		const booksdata = await d3.tsv("data/bookwordcount_"+versionfilename[vindex]+".tsv", function(d){
+		//const booksdata = await d3.tsv("data/bookwordcount.tsv", function(d){
 		//const booksdata = await d3.tsv("data/bookwordcount_kjv.tsv", function(d){
 			return {
 				books: d['bookname'],
@@ -64,21 +72,21 @@ async function analyze(){
 
 			}
 		});
-		const wordlocs = await d3.tsv("data/wordlocs.tsv", function(d){
+		const wordlocs = await d3.json("data/upwordlocs_"+versionfilename[vindex]+".json", function(d){
+		//const wordlocs = await d3.json("data/upwordlocs.json", function(d){
+		//const wordlocs = await d3.json("data/upwordlocs_kjv.json", function(d){
+		//const wordlocs = await d3.tsv("data/wordlocs.tsv", function(d){
 		//const wordlocs = await d3.tsv("data/wordlocs_kjv.tsv", function(d){
+			console.log(d);
 			return {
-				//books: d['field.1_y'],
 				word: d['uwords'],
-				//locations: d['wlocations'],
-				//bookwordcounts: +d.wordcount,
-				//chaptercount: +d.chaptercount,
 				locations: JSON.parse(d.wlocations.replace(/\'/g,"\"")),
 				bookcounts:JSON.parse(d.bookcounts.replace(/\'/g,"\""))
 			}
 		});
 		//console.log(data);
 		//console.log(booksdata);
-		//console.log(wordlocs);
+		console.log(wordlocs);
 
 		/*
 		mbooksdata = []
@@ -121,6 +129,23 @@ async function analyze(){
 		var searchnum = 0;
 		//console.log("selected"+0);
 
+var dropd_Major = d3.select("#dropdown-major select")
+	//.append("select")
+	.attr("name","Bible Version")
+	.selectAll("option")
+	.data(versions)
+	.enter()
+	//.filter(function(d,i){return parseInt(d.OCC_CODE.substring(3)) == 0 && i > 0})
+	.append("option")
+	.text(function(d){return d})
+	.attr("value", function (d,i) { 
+		console.log(d);
+		return i})
+
+
+	d3.select("#dropdown-major select").on("change",function(){
+		analyze(d3.event.target.value);
+	})
 
 		d3.select("p#currentsearch")
 			.text("Highlighting verses containing the word: ")
@@ -204,6 +229,36 @@ async function analyze(){
 			bcounts.push(Array(bc).join(".").split("."));
 		}
 		//console.log(bcounts)
+		//console.log(booksdata[0]['versecounts'])
+		//console.log(booksdata)
+
+		for(var k=0;k<booksdata.length;k++){
+		//var chtext = G.selectAll('text')
+		G.selectAll('text.chdisplay'+k)
+			.data(booksdata[k].versecounts)
+			.enter()
+			//.append('text.chdisplay'+k)
+			.append('text')
+			.text(function(d,i){return (i+1)+' -'})
+			.attr('text-anchor','end')
+			.attr('alignment-baseline','middle')
+			.attr('class','chdisplay'+k)
+			.attr('x',function(d,i){return (k*100)-3;})//horizontal words
+			.attr('y', function(d,i){
+				/*
+				(wordcount-((wordcount/chaptercount)*currentchapter))+midpoint-(wordcount/2)-wordcount
+				*/
+				return (
+					((
+						(booksdata[k].bookwordcounts/45)
+						+(((booksdata[k].bookwordcounts/45)/booksdata[k].chaptercount)*(i+1))
+					)
+					+(height/2)-((booksdata[k].bookwordcounts/45)/2))-booksdata[k].bookwordcounts/45
+				)-5
+		})
+			.attr('font-size',"5")
+			.attr('fill','white')
+		}
 
 		var versetracker = G.selectAll('g #books')
 			.data(data)
@@ -211,11 +266,18 @@ async function analyze(){
 			.append('circle')
 			.attr('class',function(d,i){
 					if(wordsearch[searchnum] != ""){
-					for(var j=0;j<wordlocs.length;j++){
-						if(wordlocs[j].word == wordsearch[searchnum].toLowerCase()){
-							verslocs[searchnum] = wordlocs[j].locations;
-							wcounts[searchnum] = wordlocs[j].locations.length;
-							bcounts[searchnum] = wordlocs[j].bookcounts;
+					//for(var j=0;j<wordlocs.length;j++){
+						var firstletter = wordsearch[searchnum].charAt(0).toLowerCase();
+						//console.log(firstletter)
+						for(var j=0;j<wordlocs[firstletter].uwords.length;j++){
+						if(wordlocs[firstletter].uwords[j] == wordsearch[searchnum].toLowerCase()){
+							verslocs[searchnum] = wordlocs[firstletter].wlocations[j];
+							wcounts[searchnum] = wordlocs[firstletter].wlocations[j].length;
+							bcounts[searchnum] = wordlocs[firstletter].bookcounts[j];
+						//if(wordlocs[j].word == wordsearch[searchnum].toLowerCase()){
+							//verslocs[searchnum] = wordlocs[j].locations;
+							//wcounts[searchnum] = wordlocs[j].locations.length;
+							//bcounts[searchnum] = wordlocs[j].bookcounts;
 							break;
 						}
 					}
@@ -295,9 +357,10 @@ async function analyze(){
 			})
 
 
-		var booktitles = G.selectAll('text')
+		var booktitles = G.selectAll('text.booktitles')
 			.data(booksdata)
 			.enter()
+			//.append('text.booktitles')
 			.append('text')
 			.text(function(d,i){return d.books;})
 			/* for verticle words vvv
@@ -306,14 +369,15 @@ async function analyze(){
 				return -1*(((height/2)-((d.bookwordcounts/45)/2))+(bbox*3));
 				})
 			*/
-			.attr('y', height)
+			//.attr('y', height)
 			//.transition()
 			//.duration(1000)
 			//.attr('y', function(d,i){return (i*100)+40;}) //vertical words
 			.attr('x',function(d,i){return (i*100);})//horizontal words
 			.attr('y', function(d){return (height/2)-((d.bookwordcounts/45)/2)-3;})//horizontal words
-			.attr('font-size',"14px")
+			.attr('font-size',"11px")
 			.attr('fill','white')
+			.attr('id','title-'+books)
 			.attr('class','booktitles')
 
 	 /*
@@ -678,11 +742,17 @@ console.log("render called with: "+elindex+", "+wasfound+", "+removing)
 			console.log(searchnum+" is searchnum @ field enter")
 			wordsearch[searchnum] = d3.event.target.value.replace(/[^\w\s]/gi,'').trim();
 					var found = false;
-					for(var j=0;j<wordlocs.length;j++){
-						if(wordlocs[j].word == wordsearch[searchnum].toLowerCase()){
-							verslocs[searchnum] = wordlocs[j].locations;
-							wcounts[searchnum] = wordlocs[j].locations.length;
-							bcounts[searchnum] = wordlocs[j].bookcounts;
+					//for(var j=0;j<wordlocs.length;j++){
+						var firstletter = wordsearch[searchnum].charAt(0).toLowerCase();
+						for(var j=0;j<wordlocs[firstletter].uwords.length;j++){
+						if(wordlocs[firstletter].uwords[j] == wordsearch[searchnum].toLowerCase()){
+							verslocs[searchnum] = wordlocs[firstletter].wlocations[j];
+							wcounts[searchnum] = wordlocs[firstletter].wlocations[j].length;
+							bcounts[searchnum] = wordlocs[firstletter].bookcounts[j];
+						//if(wordlocs[j].word == wordsearch[searchnum].toLowerCase()){
+							//verslocs[searchnum] = wordlocs[j].locations;
+							//wcounts[searchnum] = wordlocs[j].locations.length;
+							//bcounts[searchnum] = wordlocs[j].bookcounts;
 							found = true;
 							break;
 						}
@@ -718,5 +788,5 @@ nfound = render(searchnum,true,false)
 }
 
 //analyze(wordsearch);
-analyze();
+analyze(currentversion);
 

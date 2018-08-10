@@ -50,6 +50,15 @@ body{
 	/*font-family:'Work Sans', sans-serif;*/
 }
 
+#dropdown-major{
+	float:left;
+	font-size:18;
+	color:white;
+	padding:5px;
+	font-family: 'Quicksand', sans-serif;
+
+}
+
 #wordsearch, #currentsearch{
 	display:inline;
 	width:25%;
@@ -71,3 +80,8 @@ body{
 #notfound{
 	font-size:14px;
 }
+
+text{
+	font-family: 'Quicksand', sans-serif;
+}
+
