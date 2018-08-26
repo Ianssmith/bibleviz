@@ -498,11 +498,25 @@ document.addEventListener('copy', function(e) {
 			//console.log(event)
 		})
 
+			//G.selectAll("circle.unselected").on("mouseover", function(d){
 			G.selectAll("circle.unselected").on("mouseover", function(d){
 				d3.select(this).transition()
 					.attr("r",5)
+				div.transition()
+					.style("background","#eeeeee")
+					.style("border-radius","3px")
+					.style("padding","2px")
+					.style("color", "black")
+					.style("opacity", 0.9);
+				div.html(d.book + " " + d.chapter + ":" + d.verse + "<br>" + d.versetext)
+					.style("z-index", "10")
+					.style("left", (d3.event.pageX) +-(this.getBoundingClientRect().width/2)+ "px")
+					//.style("top", (d3.event.pageY)+ "px");
+					.style("top", (d3.event.pageY-42)+ "px");
+
 			})
 
+			/*
 			G.selectAll("circle.unselected").on("click", function(d){
 				div.transition()
 					.style("background","#eeeeee")
@@ -521,6 +535,7 @@ document.addEventListener('copy', function(e) {
 					//d3.select('div.container div.tooltip').focus();
 					//d3.select('div.container div.tooltip').select();
 			})
+*/
 
 			G.selectAll("circle.unselected").on("mouseout", function(d){
 				d3.select(this).transition()
