@@ -83,9 +83,21 @@ async function analyze(vindex){
 				bookcounts:JSON.parse(d.bookcounts.replace(/\'/g,"\""))
 			}
 		});
+
+		const crossrefs = await d3.json("data/cr_ids.json", function(d){
+			return {
+				d
+				//f_id: d['f_ids'],
+				//v_id: d['v_ids']
+			}
+		});
+		//console.log(crossrefs)
+
 		//console.log(data);
 		//console.log(booksdata);
 		//console.log(wordlocs);
+		//console.log(crossrefs)
+
 
 		/*
 		mbooksdata = []
@@ -355,6 +367,83 @@ var dropd_Major = d3.select("#dropdown-major select")
 			})
 
 
+
+		//var crossreflines = G.selectAll('path')	
+		//console.log(crossrefs['01001001'])
+		function hiderefs(selected){
+			G.selectAll('path.enter'+selected)
+				.attr('class','exit')
+			
+		}
+
+		function showrefs(selected){
+			//console.log(selected)
+			var fbn = parseInt(selected.slice(0,2))
+			var fch = parseInt(selected.slice(2,5))
+			var fvn = parseInt(selected.slice(5,8))
+			//console.log(fbn)
+			//console.log(fvn)
+			//console.log(fch)
+			if(crossrefs[selected]){
+				for (var i=0;i<crossrefs[selected].length;i++){
+					//console.log(crossrefs[selected][i])
+					var bn = parseInt(crossrefs[selected][i].slice(0,2))//maps to d.booknum
+					var ch = parseInt(crossrefs[selected][i].slice(2,5))//maps to d.verse
+					var vn = parseInt(crossrefs[selected][i].slice(5,8))//maps to d.chapter
+					//console.log(bn)
+					//console.log(vn)
+					//console.log(ch)
+
+					G.append('path')
+					.attr("class","enter"+selected)
+					.attr("stroke","white")
+					.attr("stroke-width",1)
+						.attr("d", "M"+(
+							((((fbn-1)*100))+(fvn*2))+","+((
+								((
+									(booksdata[fbn-1].bookwordcounts/45)
+									+(((booksdata[fbn-1].bookwordcounts/45)/booksdata[fbn-1].chaptercount)*fch)
+								)
+								+(height/2)-((booksdata[fbn-1].bookwordcounts/45)/2))-booksdata[fbn-1].bookwordcounts/45
+							)-5)
+							+" L"+((((bn-1)*100))+(vn*2))+","+((
+								((
+									(booksdata[bn-1].bookwordcounts/45)
+									+(((booksdata[bn-1].bookwordcounts/45)/booksdata[bn-1].chaptercount)*ch)
+								)
+								+(height/2)-((booksdata[bn-1].bookwordcounts/45)/2))-booksdata[bn-1].bookwordcounts/45
+							)-5)
+							)
+						)
+							//+" "+((((originX-92)+priorCurves[i].x))/2)+","+((postcontrol+priorCurves[i].y)/2)
+							//+" T"+(priorCurves[i].x)+","+(priorCurves[i].y-5))
+
+					/*
+					how to locate circle positions
+					.attr('cx',function(d,i){
+							return (((bn-1)*100))+(vn*2);
+					})
+					.attr('cy',function(d,i){ 
+						return (
+							((
+								(booksdata[bn-1].bookwordcounts/45)
+								+(((booksdata[bn-1].bookwordcounts/45)/booksdata[bn-1].chaptercount)*ch)
+							)
+							+(height/2)-((booksdata[bn-1].bookwordcounts/45)/2))-booksdata[bn-1].bookwordcounts/45
+						)-5;
+					})
+					how to draw hack d3 lines
+					.attr("d", "M"+(originX-72)+","+(postcontrol)
+						+" Q"+(originX-300)+","+(postcontrol)//+(height/8)-i*10)
+						+" "+((((originX-92)+priorCurves[i].x))/2)+","+((postcontrol+priorCurves[i].y)/2)
+						+" T"+(priorCurves[i].x)+","+(priorCurves[i].y-5))
+					*/
+				}
+			}else{
+				console.log("no references")
+			}
+		}
+
 		var booktitles = G.selectAll('text.booktitles')
 			.data(booksdata)
 			.enter()
@@ -514,10 +603,16 @@ document.addEventListener('copy', function(e) {
 					//.style("top", (d3.event.pageY)+ "px");
 					.style("top", (d3.event.pageY-42)+ "px");
 
+				//showrefs(d.id)
 			})
 
+			G.selectAll("circle").on("click", function(d){
+				//console.log(d)
+				//console.log(this)
+				showrefs(d.id)
+				//d3.select(this)
+					//.attr("class","showrefs")
 			/*
-			G.selectAll("circle.unselected").on("click", function(d){
 				div.transition()
 					.style("background","#eeeeee")
 					.style("border-radius","3px")
@@ -534,8 +629,9 @@ document.addEventListener('copy', function(e) {
 					//document.querySelector('div.container div.tooltip').select();
 					//d3.select('div.container div.tooltip').focus();
 					//d3.select('div.container div.tooltip').select();
+			*/
 			})
-*/
+
 
 			G.selectAll("circle.unselected").on("mouseout", function(d){
 				d3.select(this).transition()
